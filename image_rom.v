@@ -1,21 +1,21 @@
-// This is the ROM for the 'AGH48x64.png' image.
-// The image size is 48 x 64 pixels.
-// The input 'address' is a 12-bit number, composed of the concatenated
-// 6-bit y and 6-bit x pixel coordinates.
-// The output 'rgb' is 12-bit number with concatenated
-// red, green and blue color values (4-bit each)
+
 module image_rom (
     input wire clk ,
-    input wire [11:0] address,  // address = {addry[5:0], addrx[5:0]}
-    output reg [11:0] rgb
+    input wire [13:0] address,  // address = {addry[11:0], addrx[11:0]}
+    output reg [11:0] rgb_out
 );
 
+parameter IMG_WIDTH = 128;
+parameter IMG_HEIGHT = 128;
+parameter IMG_PATH = "";
+localparam ROM_DEPTH = IMG_WIDTH * IMG_HEIGHT;
 
-reg [11:0] rom [0:4095];
 
-initial $readmemh("../../../../image_rom.data", rom); 
+reg [13:0] rom [0:(ROM_DEPTH - 1)];
+
+initial $readmemh(IMG_PATH, rom);
 
 always @(posedge clk)
-    rgb <= rom[address];
+    rgb_out <= rom[address];
 
 endmodule

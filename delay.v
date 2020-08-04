@@ -1,3 +1,5 @@
+// file downloaded from:
+// https://upel2.cel.agh.edu.pl/weaiib/pluginfile.php/61446/mod_assign/introattachment/0/delay.v?forcedownload=1
 // The module delays the input data 'din' by the number of clock cycles
 // set by CLK_DEL input parameter
 module delay

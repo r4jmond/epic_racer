@@ -1,4 +1,6 @@
 // File: testbench.v
+// file downloaded from:
+// https://upel2.cel.agh.edu.pl/weaiib/pluginfile.php/61442/mod_assign/introattachment/0/MTM_UEC_lab2_1_ee178_spring2017_lab4.zip?forcedownload=1
 // This is a top level testbench for the
 // vga_example design, which is part of
 // the EE178 Lab #4 assignment.

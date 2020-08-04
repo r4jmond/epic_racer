@@ -1,6 +1,6 @@
 `timescale 1 ns / 1 ps
 
-module vga_timing (
+module xga_timing (
   input wire pclk,
   input wire rst,
   output reg [10:0] vcount,
