@@ -53,7 +53,7 @@ wire [11:0] rgb_bt, rgb_tc;
 wire [10:0] xpos, ypos;
 wire bg_visible, track_visible, player_visible;
 
-main_fsm epic_racer_fs (
+main_fsm epic_racer_fsm (
     .pclk(clk65M),
     .rst(rst),
     .bg_visible(bg_visible),
