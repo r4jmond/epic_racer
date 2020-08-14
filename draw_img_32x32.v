@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module draw_img(
+module draw_img_32x32(
     input wire [10:0] hcount_in,
     input wire hsync_in,
     input wire hblnk_in,
@@ -21,14 +21,14 @@ module draw_img(
     output reg vsync_out,
     output reg vblnk_out,
     output reg [11:0] rgb_out,
-    output reg [13:0] pixel_addr
+    output reg [9:0] pixel_addr
 );
     
-parameter RECT_WIDTH = 128;
-parameter RECT_LENGTH = 128;
+parameter RECT_WIDTH = 32;
+parameter RECT_LENGTH = 32;
 
 reg [11:0] rgb_out_nxt;
-reg [13:0] pixel_addr_nxt;
+reg [9:0] pixel_addr_nxt;
 reg [10:0] addrx, addry;
 wire [10:0] vcount_delayed, hcount_delayed;
 wire hsync_delayed, vsync_delayed, hblnk_delayed, vblnk_delayed;
@@ -61,15 +61,15 @@ always @*
 begin
     addrx = hcount_in - xpos;
     addry = vcount_in - ypos;
-         
     rgb_out_nxt = rgb_in;
     pixel_addr_nxt = 0;
+    
     if(visible)
     begin
         if(hcount_in >= xpos && hcount_in < (xpos + RECT_WIDTH) && vcount_in >= ypos && vcount_in < (ypos + RECT_LENGTH))
         begin
             rgb_out_nxt = rgb_pixel;
-            pixel_addr_nxt = { (addry[6:0]), (addrx[6:0]) };
+            pixel_addr_nxt = { (addry[4:0]), (addrx[4:0]) };
         end
     end
 end
