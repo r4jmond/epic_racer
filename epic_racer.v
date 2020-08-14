@@ -47,7 +47,8 @@ xga_timing my_timing (
 
 
 wire [11:0] bg_data, track_data, car_data;
-wire [13:0] bg_adress, track_adress, car_adress;
+wire [13:0] bg_adress, track_adress;
+wire [11:0] car_adress;
 wire [11:0] rgb_bt, rgb_tc;
 wire [10:0] xpos, ypos;
 wire bg_visible, track_visible, player_visible;
@@ -60,7 +61,7 @@ main_fsm epic_racer_fs (
     .player_visible(player_visible)
 );
 
-draw_img #(1024, 768) draw_background(
+draw_img_128x128 #(1024, 768) draw_background(
     .vcount_in(vcount),
     .hcount_in(hcount),
     .vsync_in(vsync),
@@ -83,13 +84,13 @@ draw_img #(1024, 768) draw_background(
     .hsync_out(hsync2)
 );
 
-image_rom #(128, 128, "./images/tile.data") background_tile(
+image_rom_128x128 #(128, 128, "./images/tile.data") background_tile(
     .clk(clk65M),
     .address(bg_adress),
     .rgb_out(bg_data)
 );
 
-draw_img #(1024, 768) draw_track(
+draw_img_128x128 #(1024, 768) draw_track(
     .vcount_in(vcount2),
     .hcount_in(hcount2),
     .vsync_in(vsync2),
@@ -111,13 +112,13 @@ draw_img #(1024, 768) draw_track(
     .hsync_out(hsync3)
 );
 
-image_rom #(128, 128, "./images/track.data") track_test_tile(
+image_rom_128x128 #(128, 128, "./images/track.data") track_test_tile(
     .clk(clk65M),
     .address(track_adress),
     .rgb_out(track_data)
 );
 
-draw_img #(128, 128) draw_car(
+draw_img_64x64 #(64, 64) draw_car(
     .vcount_in(vcount3),
     .hcount_in(hcount3),
     .vsync_in(vsync3),
@@ -127,7 +128,7 @@ draw_img #(128, 128) draw_car(
     .pclk(clk65M),
     .rst(rst),
     .visible(player_visible),
-    .rgb_in(rgb_bt),
+    .rgb_in(rgb_tc),
     .rgb_pixel(car_data),
     .pixel_addr(car_adress),
     .rgb_out({r, g, b}),
@@ -135,7 +136,7 @@ draw_img #(128, 128) draw_car(
     .hsync_out(hs)
 );
 
-image_rom #(128, 128, "./images/car.data") player_test(
+image_rom_64x64 #(64, 64, "./images/car.data") player_test(
     .clk(clk65M),
     .address(car_adress),
     .rgb_out(car_data)
