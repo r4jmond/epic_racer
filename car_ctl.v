@@ -30,9 +30,11 @@ module car_ctl(
 
 localparam SPEED_MAX = 2137;
 localparam SPEED_MIN = -2137;
+localparam ARROW_UP = 4'b0001;
 
 reg [10:0] xpos_nxt, ypos_nxt;
 reg [10:0] speed, speed_nxt;
+reg [10:0] timer, timer_nxt;
 
 always @(posedge pclk)
 if(rst)
@@ -51,12 +53,14 @@ end
 always @*
 begin
     speed_nxt = speed;
-    xpos_nxt  = xpos + x_speed;
+    xpos_nxt  = xpos + speed;
     ypos_nxt  = ypos;
     case(key)
         ARROW_UP:
-            xspeed_nxt = xspeed + 1;
+        begin
+            speed_nxt = speed + 1;
             xpos_nxt  = xpos + speed;
+        end
     endcase
 end
 
