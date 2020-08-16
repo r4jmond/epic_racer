@@ -31,7 +31,7 @@ clk_wiz_0 my_clk(
   );
  
 wire [10:0] vcount, hcount, vcount2, hcount2, vcount3, hcount3;
-wire vsync, vblnk, hsync, hblnk, vsync2, vblnk2, hsync2, hblnk2, vsync3, vblnk3, hsync3, hblnk3;
+wire vsync, vblnk, hsync, hblnk, frame_ended, vsync2, vblnk2, hsync2, hblnk2, frame_ended2, vsync3, vblnk3, hsync3, hblnk3, frame_ended3;
 
 xga_timing my_timing (
     .vcount(vcount),
@@ -41,7 +41,8 @@ xga_timing my_timing (
     .hsync(hsync),
     .hblnk(hblnk),
     .pclk(clk65M),
-    .rst(rst)
+    .rst(rst),
+    .frame_ended(frame_ended)
 );
 
 
@@ -61,7 +62,7 @@ main_fsm epic_racer_fsm (
     .player_visible(player_visible)
 );
 
-draw_img_128x128 #(1024, 768) draw_background(
+draw_img #(1024, 768, 14) draw_background(
     .vcount_in(vcount),
     .hcount_in(hcount),
     .vsync_in(vsync),
@@ -81,16 +82,17 @@ draw_img_128x128 #(1024, 768) draw_background(
     .vblnk_out(vblnk2),
     .hblnk_out(hblnk2),
     .vsync_out(vsync2),
-    .hsync_out(hsync2)
+    .hsync_out(hsync2),
+    .frame_ended(frame_ended2)
 );
 
-image_rom_128x128 #(128, 128, "./images/tile.data") background_tile(
+image_rom #(128, 128, 14, "./images/tile.data") background_tile(
     .clk(clk65M),
     .address(bg_adress),
     .rgb_out(bg_data)
 );
 
-draw_img_128x128 #(1024, 768) draw_track(
+draw_img #(1024, 768, 14) draw_track(
     .vcount_in(vcount2),
     .hcount_in(hcount2),
     .vsync_in(vsync2),
@@ -109,16 +111,17 @@ draw_img_128x128 #(1024, 768) draw_track(
     .vblnk_out(vblnk3),
     .hblnk_out(hblnk3),
     .vsync_out(vsync3),
-    .hsync_out(hsync3)
+    .hsync_out(hsync3),
+    .frame_ended(frame_ended3)
 );
 
-image_rom_128x128 #(128, 128, "./images/track.data") track_test_tile(
+image_rom #(128, 128, 14, "./images/track.data") track_test_tile(
     .clk(clk65M),
     .address(track_adress),
     .rgb_out(track_data)
 );
 
-draw_img_64x64 #(64, 64) draw_car(
+draw_img #(64, 64, 12) draw_car(
     .vcount_in(vcount3),
     .hcount_in(hcount3),
     .vsync_in(vsync3),
@@ -136,7 +139,7 @@ draw_img_64x64 #(64, 64) draw_car(
     .hsync_out(hs)
 );
 
-image_rom_64x64 #(64, 64, "./images/car.data") player_test(
+image_rom #(64, 64, 12, "./images/car.data") player_test(
     .clk(clk65M),
     .address(car_adress),
     .rgb_out(car_data)

@@ -8,7 +8,8 @@ module xga_timing (
   output wire vblnk,
   output reg [10:0] hcount,
   output wire hsync,
-  output wire hblnk
+  output wire hblnk,
+  output wire frame_ended
 );
 
 parameter X_VISIBLE_AREA = 1024;
@@ -51,7 +52,8 @@ begin
     begin
         hcount_nxt = 0;
         if(vcount < (Y_WHOLE_LINE - 1)) vcount_nxt = vcount + 1;
-        else vcount_nxt = 0;
+        else
+         vcount_nxt = 0;
     end
 end
 
@@ -59,4 +61,5 @@ assign hsync = rst ? 0 : ((hcount > (X_VISIBLE_AREA + X_FRONT_PORCH - 1)) && (hc
 assign hblnk = rst ? 0 : (hcount > (X_VISIBLE_AREA - 1));
 assign vsync = rst ? 0 : ((vcount > (Y_VISIBLE_AREA + Y_FRONT_PORCH - 1)) && (vcount < (Y_WHOLE_LINE - Y_BACK_PORCH)));
 assign vblnk = rst ? 0 : (vcount > (Y_VISIBLE_AREA - 1));
+assign frame_ended = rst ? 0 : (vcount == 0);
 endmodule
