@@ -21,119 +21,128 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module keyboard(
-   input wire CLK,	//board clock
+   input wire clk,	//board clock
    input wire PS2_CLK,	//keyboard clock and data signals
    input wire  PS2_DATA,
    input wire rst,
    output reg [1:0] key
    	);
 
-	localparam ARROW_UP = 8'h75;	//codes for arrows
-	localparam ARROW_DOWN = 8'h72;
-	localparam ARROW_LEFT = 8'h6B;
-	localparam ARROW_RIGHT = 8'h74;
-	localparam SPACE = 8'h29;
-	localparam ESC = 8'h76;
+localparam ARROW_UP = 8'h75;	//codes for arrows
+localparam ARROW_DOWN = 8'h72;
+localparam ARROW_LEFT = 8'h6B;
+localparam ARROW_RIGHT = 8'h74;
+localparam SPACE = 8'h29;
+localparam ESC = 8'h76;
 
 	
-	reg [15:0] kcode, kcode_nxt;		
-	reg TRIGGER, TRIGGER_nxt = 0;
-	reg [1:0] key_nxt;
-	reg [15:0] scan_code;
-	wire FLAG;
-	reg delay_FLAG, delay_FLAG_nxt = 1'b0;
-	
-		
-	Keyboard_PS2 (
-		.CLK(CLK),
-		.PS2_CLK(PS2_CLK), 
-		.PS2_DATA(PS2_DATA),
-		.scan_code(scan_code),
-		.FLAG(FLAG)
-		);
+reg [15:0] kcode, kcode_nxt;		
+reg TRIGGER, TRIGGER_nxt = 0;
+reg [1:0] key_nxt;
+reg [15:0] keycode;
+reg  [15:0] keycodev=0;
+wire flag;
+reg delay_FLAG, delay_FLAG_nxt = 1'b0;
 
-  always@(*)
-    if (scan_code[7:0] == 8'hf0) 
-	begin
+localparam  ARROW_LEFT_keyboard = 6'b000001;
+localparam ARROW_RIGHT_keyboard = 6'b000010;
+localparam  ARROW_UP_keyboard = 6'b000100;
+localparam ARROW_DOWN_keyboard = 6'b001000;
+localparam  SPACE_keyboard = 6'b010000;
+localparam ESC_keyboard = 6'b100000;
+
+localparam NULL = 1'b0;
+
+PS2Receiver (
+	.clk(clk),
+	.PS2_CLK(PS2_CLK), 
+	.PS2_DATA(PS2_DATA),
+	.keycode(keycode),
+	.oflag(flag)
+	);
+
+ always@(*)
+    if (keycode[7:0] == 8'hf0) 
+    begin
       TRIGGER = 1'b0;
       kcode_nxt = kcode;
     end 
-	else if (scan_code[15:8] == 8'hf0)
+	else if (keycode[15:8] == 8'hf0)
 	begin
       TRIGGER = 1'b0;
-      kcode_nxt = (FLAG == 1'b1 && (scan_code != kcode) ) ? scan_code : kcode;
+      kcode_nxt = (flag == 1'b1 && (keycode != kcode) ) ? keycode : kcode;
     end
 	else 
 	begin
-      TRIGGER_nxt = (FLAG == 1'b1 && (scan_code[7:0] != kcode[7:0] || kcode[15:8] == 8'hf0) ) ? 1'b1 : 1'b0;
-      kcode_nxt = (FLAG == 1'b1 && (scan_code[7:0] != kcode[7:0] || kcode[15:8] == 8'hf0) ) ? scan_code : kcode;
+      TRIGGER_nxt = (flag == 1'b1 && (keycode[7:0] != kcode[7:0] || kcode[15:8] == 8'hf0) ) ? 1'b1 : 1'b0;
+      kcode_nxt = (flag == 1'b1 && (keycode[7:0] != kcode[7:0] || kcode[15:8] == 8'hf0) ) ? keycode : kcode;
     end
 	
-	always@(posedge CLK)
+always@(posedge clk)
 	begin
-    TRIGGER <= TRIGGER_nxt;
-    kcode <= kcode_nxt;
+     TRIGGER <= TRIGGER_nxt;
+     kcode <= kcode_nxt;
     end
 
-  always@(*) 
-   if( delay_FLAG != 1'b0 ) 
-   begin
-     key_nxt = key;
-     delay_FLAG_nxt = delay_FLAG- 1;
-   end 
-   else if( TRIGGER == 1'b1 ) 
-     case( kcode[7:0] )
-       ARROW_LEFT: 
+always@(*) 
+  if( delay_FLAG != 1'b0 ) 
+  begin
+    key_nxt = key;
+    delay_FLAG_nxt = delay_FLAG- 1;
+  end 
+  else if( TRIGGER == 1'b1 ) 
+    case( kcode[7:0] )
+      ARROW_LEFT: 
 	   begin
-         key_nxt = ARROW_LEFT_state;
+         key_nxt = ARROW_LEFT_keyboard;
          delay_FLAG_nxt = 1'b1;
        end
-       ARROW_RIGHT: 
-	   begin
-         key_nxt = ARROW_RIGHT_state;
-         delay_FLAG_nxt = 1'b1;
+      ARROW_RIGHT: 
+	    begin
+          key_nxt = ARROW_RIGHT_keyboard;
+          delay_FLAG_nxt = 1'b1;
+         end
+	  ARROW_UP : 
+	    begin
+          key_nxt = ARROW_UP_keyboard;
+          delay_FLAG_nxt = 1'b1;
        end
-	   ARROW_UP : 
-	   begin
-         key_nxt = ARROW_UP_state;
-         delay_FLAG_nxt = 1'b1;
-       end
-	   ARROW_DOWN : 
-	   begin
-         key_nxt = ARROW_DOWN_state;
-         delay_FLAG_nxt = 1'b1;
-       end
-	    SPACE : 
-	   begin
-         key_nxt = SPACE_state;
-         delay_FLAG_nxt = 1'b1;
-       end
-	    ESC : 
-	   begin
-         key_nxt = ESC_state;
-         delay_FLAG_nxt = 1'b1;
-       end
-       default: 
-	   begin
-         key_nxt = NULL_state;
+	  ARROW_DOWN : 
+	    begin
+          key_nxt = ARROW_DOWN_keyboard;
+          delay_FLAG_nxt = 1'b1;
+        end
+	  SPACE : 
+	    begin
+          key_nxt = SPACE_keyboard;
+          delay_FLAG_nxt = 1'b1;
+        end
+	  ESC : 
+	    begin
+          key_nxt = ESC_keyboard;
+          delay_FLAG_nxt = 1'b1;
+        end
+     default: 
+	    begin
+         key_nxt = NULL;
          delay_FLAG_nxt = 1'b0;
-       end
+        end
      endcase
    else 
-   begin
-     key_nxt = NULL_state;
-     delay_FLAG_nxt = 1'b0;
-   end
+    begin
+      key_nxt = NULL;
+      delay_FLAG_nxt = 1'b0;
+    end
   
-  always@(posedge CLK) 
-  begin
-    if(rst) 
-	begin
-      key <= NULL_state;
+always@(posedge clk) 
+ begin
+   if(rst) 
+    begin
+      key <= NULL;
       delay_FLAG<= 1'b0;
     end
-    else 
-	begin
+   else 
+    begin
       key <= key_nxt;
       delay_FLAG <= delay_FLAG_nxt;
     end  
