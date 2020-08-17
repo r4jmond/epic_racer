@@ -119,12 +119,12 @@ delay #(1,2) hblnk_delay(
  .din(hblnk_in),
  .dout(hblnk_delayed)
 );
-
+/*
 delay #(1,2) frame_ended_delay(
  .clk(pclk),
  .rst(rst),
  .din(frame_ended_in),
  .dout(frame_ended_out)
 );
-
+*/
 endmodule

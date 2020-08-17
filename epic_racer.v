@@ -5,6 +5,8 @@ module epic_racer (
     input wire rst,
     output wire hs,
     output wire vs,
+    inout wire ps2_clk,
+    inout wire ps2_data,
     output wire [3:0] r,
     output wire [3:0] g,
     output wire [3:0] b,
@@ -72,8 +74,6 @@ draw_img #(1024, 768, 14) draw_background(
     .pclk(clk65M),
     .rst(rst),
     .visible(bg_visible),
-    .xpos(xpos),
-    .ypos(ypos),
     .rgb_pixel(bg_data),
     .pixel_addr(bg_adress),
     .rgb_out(rgb_bt),
@@ -82,8 +82,8 @@ draw_img #(1024, 768, 14) draw_background(
     .vblnk_out(vblnk2),
     .hblnk_out(hblnk2),
     .vsync_out(vsync2),
-    .hsync_out(hsync2),
-    .frame_ended(frame_ended2)
+    .hsync_out(hsync2)
+   // .frame_ended(frame_ended2)
 );
 
 image_rom #(128, 128, 14, "./images/tile.data") background_tile(
@@ -111,8 +111,8 @@ draw_img #(1024, 768, 14) draw_track(
     .vblnk_out(vblnk3),
     .hblnk_out(hblnk3),
     .vsync_out(vsync3),
-    .hsync_out(hsync3),
-    .frame_ended(frame_ended3)
+    .hsync_out(hsync3)
+    //.frame_ended(frame_ended3)
 );
 
 image_rom #(128, 128, 14, "./images/track.data") track_test_tile(
@@ -130,6 +130,8 @@ draw_img #(64, 64, 12) draw_car(
     .hblnk_in(hblnk3),
     .pclk(clk65M),
     .rst(rst),
+     .xpos(xpos),
+    .ypos(ypos),
     .visible(player_visible),
     .rgb_in(rgb_tc),
     .rgb_pixel(car_data),
@@ -139,7 +141,26 @@ draw_img #(64, 64, 12) draw_car(
     .hsync_out(hs)
 );
 
-image_rom #(64, 64, 12, "./images/car.data") player_test(
+wire [5:0] keyboard_key;
+
+car_ctl my_car_ctl(
+    .pclk(clk65M),
+    .rst(rst),
+    .frame_ended(frame_ended),
+    .key(keyboard_key[3:0]),
+    .xpos(xpos),
+    .ypos(ypos)
+);
+
+keyboard my_keyboard(
+    .clk(clk100M),
+    .ps2_clk(ps2_clk),
+    .ps2_data(ps2_data),
+    .rst(rst),
+    .key(keyboard_key)
+);
+
+image_rom #(64, 64, 12, "./images/car.data") car_rom(
     .clk(clk65M),
     .address(car_adress),
     .rgb_out(car_data)
