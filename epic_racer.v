@@ -5,6 +5,10 @@ module epic_racer (
     input wire rst,
     output wire hs,
     output wire vs,
+    input wire btnR,
+    input wire btnL,
+    input wire btnD,
+    input wire btnU,
     inout wire ps2_clk,
     inout wire ps2_data,
     output wire [3:0] r,
@@ -141,24 +145,45 @@ draw_img #(64, 64, 12) draw_car(
     .hsync_out(hs)
 );
 
-wire [5:0] keyboard_key;
+wire btnR_D, btnL_D, btnD_D, btnU_D;
+
+debouncer btnR_debouncer(
+    .clk(clk65M),
+    .I(btnR),
+    .O(btnR_D)
+);
+debouncer btnL_debouncer(
+    .clk(clk65M),
+    .I(btnL),
+    .O(btnL_D)
+);
+debouncer btnD_debouncer(
+    .clk(clk65M),
+    .I(btnD),
+    .O(btnD_D)
+);
+debouncer btnU_debouncer(
+    .clk(clk65M),
+    .I(btnU),
+    .O(btnU_D)
+);
 
 car_ctl my_car_ctl(
     .pclk(clk65M),
     .rst(rst),
     .frame_ended(frame_ended),
-    .key(keyboard_key[3:0]),
+    .key({ btnR_D, btnL_D, btnD_D, btnU_D }),
     .xpos(xpos),
     .ypos(ypos)
 );
-
+/*
 keyboard my_keyboard(
     .clk(clk100M),
     .ps2_clk(ps2_clk),
     .ps2_data(ps2_data),
     .rst(rst),
     .key(keyboard_key)
-);
+);*/
 
 image_rom #(64, 64, 12, "./images/car.data") car_rom(
     .clk(clk65M),

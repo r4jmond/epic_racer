@@ -25,16 +25,16 @@ module car_ctl(
     input wire rst,
     input wire frame_ended,
     input wire [3:0] key,
-    output reg [10:0] xpos,
-    output reg [10:0] ypos
+    output reg [10:0] xpos = 0,
+    output reg [10:0] ypos = 0
 );
 
 localparam CAR_WIDTH = 64;
 localparam CAR_LENGTH = 64;
 localparam X_MAX = 1024 - CAR_WIDTH;
 localparam Y_MAX = 768 - CAR_LENGTH;
-localparam SPEED_MAX = 10;
-localparam SPEED_MIN = -10;
+localparam SPEED_MAX = 50;
+localparam SPEED_MIN = -50;
 localparam ARROW_UP = 4'b0001;
 localparam ARROW_DOWN = 4'b0010;
 localparam ARROW_LEFT = 4'b0100;
@@ -44,15 +44,19 @@ localparam ARROW_UPRIGHT = ARROW_UP | ARROW_RIGHT;
 localparam ARROW_DOWNLEFT = ARROW_DOWN | ARROW_LEFT;
 localparam ARROW_DOWNRIGHT = ARROW_DOWN | ARROW_RIGHT;
 
-reg [10:0] xpos_nxt, ypos_nxt;
-reg [10:0] xspeed, xspeed_nxt, yspeed, yspeed_nxt;
-reg [10:0] timer, timer_nxt;
+reg [10:0] xpos_nxt = 0, ypos_nxt = 0;
+reg [10:0] xspeed = 0, xspeed_nxt = 0, yspeed = 0, yspeed_nxt = 0;
+/*reg [10:0] xspeed = 0;
+reg [10:0] xspeed_nxt = 0;
+reg [10:0] yspeed = 0;
+reg [10:0] yspeed_nxt = 0;*/
+reg [31:0] timer = 0, timer_nxt = 0;
 
 always @(posedge pclk)
 if(rst)
 begin
-    xpos <= 640;
-    ypos <= 480;
+    xpos <= 300;
+    ypos <= 250;
     xspeed <= 0;
     yspeed <= 0;
     timer <= 0;
@@ -68,59 +72,32 @@ end
 
 always @*
 begin
-    timer_nxt = timer + 1; 
-    xpos_nxt  = xpos + xspeed;
-    ypos_nxt  = ypos + yspeed;
     if(xpos >= X_MAX) xpos_nxt = X_MAX;
+    else if (xpos <= 5) xpos_nxt = 5;
+    else xpos_nxt = xpos;
     if(ypos >= Y_MAX) ypos_nxt = Y_MAX;
-    //xspeed_nxt = xspeed - 2;
-    //yspeed_nxt = yspeed - 2;
-    if(timer >= 20000000)
-    begin
+    else if (ypos <= 5) ypos_nxt = 5;
+    else ypos_nxt = ypos;
+    timer_nxt = timer + 1;
+    
+    if(timer >= 2000000) begin
         timer_nxt = 0;
-        case(key)
-            ARROW_UP:
-            begin
-                yspeed_nxt = yspeed + 5;
-            end
-            ARROW_DOWN:
-            begin
-                yspeed_nxt = yspeed - 5;
-            end
-            ARROW_RIGHT:
-            begin
-                xspeed_nxt = xspeed + 5;
-            end
-            ARROW_LEFT:
-            begin
-                xspeed_nxt = xspeed - 5;
-            end
-            ARROW_UPLEFT:
-            begin
-                xspeed_nxt = xspeed - 5;
-                yspeed_nxt = yspeed + 5;
-            end
-            ARROW_UPRIGHT:
-            begin
-                xspeed_nxt = xspeed + 5;
-                yspeed_nxt = yspeed + 5;
-            end
-            ARROW_DOWNLEFT:
-            begin
-                xspeed_nxt = xspeed - 5;
-                yspeed_nxt = yspeed - 5;
-            end
-            ARROW_DOWNRIGHT:
-            begin
-                xspeed_nxt = xspeed + 5;
-                yspeed_nxt = yspeed - 5;
-            end
-        endcase
-        if(xspeed >= SPEED_MAX) xspeed_nxt = SPEED_MAX;
-        else if (xspeed <= SPEED_MIN) xspeed_nxt = SPEED_MIN;
-        if(yspeed >= SPEED_MAX) yspeed_nxt = SPEED_MAX;
-        else if (yspeed <= SPEED_MIN) yspeed_nxt = SPEED_MIN;
+        xpos_nxt  = xpos + xspeed;
+        ypos_nxt  = ypos + yspeed;
+        if(key[0]) yspeed_nxt = yspeed - 1;
+        if(key[1]) yspeed_nxt = yspeed + 1;
+        if(key[2]) xspeed_nxt = xspeed - 1;
+        if(key[3]) xspeed_nxt = xspeed + 1;
+        
+        /*if(xspeed > 0) xspeed_nxt = xspeed - 1;
+        else if(xspeed < 0) xspeed_nxt = xspeed + 1;
+        if(yspeed > 0) yspeed_nxt = yspeed - 1;
+        else if(yspeed < 0) yspeed_nxt = yspeed + 1;*/
     end
+   /* if(xspeed > SPEED_MAX) xspeed_nxt = SPEED_MAX;
+    else if (xspeed < SPEED_MIN) xspeed_nxt = SPEED_MIN;
+    if(yspeed > SPEED_MAX) yspeed_nxt = SPEED_MAX;
+    else if (yspeed < SPEED_MIN) yspeed_nxt = SPEED_MIN;*/
 end
 
 endmodule
