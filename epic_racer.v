@@ -122,6 +122,8 @@ image_rom #(128, 128, 14, "./images/track.data") track_test_tile(
     .rgb_out(track_data)
 );
 
+wire [1:0] car_rotation;
+
 draw_img #(64, 64, 12) draw_car(
     .vcount_in(vcount3),
     .hcount_in(hcount3),
@@ -131,7 +133,7 @@ draw_img #(64, 64, 12) draw_car(
     .hblnk_in(hblnk3),
     .pclk(clk65M),
     .rst(rst),
-     .xpos(xpos),
+    .xpos(xpos),
     .ypos(ypos),
     .visible(player_visible),
     .rgb_in(rgb_tc),
@@ -139,7 +141,8 @@ draw_img #(64, 64, 12) draw_car(
     .pixel_addr(car_adress),
     .rgb_out({r, g, b}),
     .vsync_out(vs),
-    .hsync_out(hs)
+    .hsync_out(hs),
+    .rotation(car_rotation)
 );
 
 wire btnR_D, btnL_D, btnD_D, btnU_D;
@@ -170,7 +173,8 @@ car_ctl my_car_ctl(
     .rst(rst),
     .key({ btnR_D, btnL_D, btnD_D, btnU_D }),
     .xpos(xpos),
-    .ypos(ypos)
+    .ypos(ypos),
+    .move_dir(car_rotation)
 );
 
 /*
