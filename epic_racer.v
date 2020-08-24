@@ -5,6 +5,12 @@ module epic_racer (
     input wire rst,
     output wire hs,
     output wire vs,
+    input wire btnR,
+    input wire btnL,
+    input wire btnD,
+    input wire btnU,
+    inout wire ps2_clk,
+    inout wire ps2_data,
     output wire [3:0] r,
     output wire [3:0] g,
     output wire [3:0] b,
@@ -31,7 +37,7 @@ clk_wiz_0 my_clk(
   );
  
 wire [10:0] vcount, hcount, vcount2, hcount2, vcount3, hcount3;
-wire vsync, vblnk, hsync, hblnk, frame_ended, vsync2, vblnk2, hsync2, hblnk2, frame_ended2, vsync3, vblnk3, hsync3, hblnk3, frame_ended3;
+wire vsync, vblnk, hsync, hblnk, vsync2, vblnk2, hsync2, hblnk2, vsync3, vblnk3, hsync3, hblnk3;
 
 xga_timing my_timing (
     .vcount(vcount),
@@ -41,8 +47,7 @@ xga_timing my_timing (
     .hsync(hsync),
     .hblnk(hblnk),
     .pclk(clk65M),
-    .rst(rst),
-    .frame_ended(frame_ended)
+    .rst(rst)
 );
 
 
@@ -72,8 +77,6 @@ draw_img #(1024, 768, 14) draw_background(
     .pclk(clk65M),
     .rst(rst),
     .visible(bg_visible),
-    .xpos(xpos),
-    .ypos(ypos),
     .rgb_pixel(bg_data),
     .pixel_addr(bg_adress),
     .rgb_out(rgb_bt),
@@ -82,8 +85,7 @@ draw_img #(1024, 768, 14) draw_background(
     .vblnk_out(vblnk2),
     .hblnk_out(hblnk2),
     .vsync_out(vsync2),
-    .hsync_out(hsync2),
-    .frame_ended(frame_ended2)
+    .hsync_out(hsync2)
 );
 
 image_rom #(128, 128, 14, "./images/tile.data") background_tile(
@@ -111,8 +113,7 @@ draw_img #(1024, 768, 14) draw_track(
     .vblnk_out(vblnk3),
     .hblnk_out(hblnk3),
     .vsync_out(vsync3),
-    .hsync_out(hsync3),
-    .frame_ended(frame_ended3)
+    .hsync_out(hsync3)
 );
 
 image_rom #(128, 128, 14, "./images/track.data") track_test_tile(
@@ -130,6 +131,8 @@ draw_img #(64, 64, 12) draw_car(
     .hblnk_in(hblnk3),
     .pclk(clk65M),
     .rst(rst),
+     .xpos(xpos),
+    .ypos(ypos),
     .visible(player_visible),
     .rgb_in(rgb_tc),
     .rgb_pixel(car_data),
@@ -139,7 +142,47 @@ draw_img #(64, 64, 12) draw_car(
     .hsync_out(hs)
 );
 
-image_rom #(64, 64, 12, "./images/car.data") player_test(
+wire btnR_D, btnL_D, btnD_D, btnU_D;
+
+debouncer btnR_debouncer(
+    .clk(clk65M),
+    .I(btnR),
+    .O(btnR_D)
+);
+debouncer btnL_debouncer(
+    .clk(clk65M),
+    .I(btnL),
+    .O(btnL_D)
+);
+debouncer btnD_debouncer(
+    .clk(clk65M),
+    .I(btnD),
+    .O(btnD_D)
+);
+debouncer btnU_debouncer(
+    .clk(clk65M),
+    .I(btnU),
+    .O(btnU_D)
+);
+
+car_ctl my_car_ctl(
+    .pclk(clk65M),
+    .rst(rst),
+    .key({ btnR_D, btnL_D, btnD_D, btnU_D }),
+    .xpos(xpos),
+    .ypos(ypos)
+);
+
+/*
+keyboard my_keyboard(
+    .clk(clk100M),
+    .ps2_clk(ps2_clk),
+    .ps2_data(ps2_data),
+    .rst(rst),
+    .key(keyboard_key)
+);*/
+
+image_rom #(64, 64, 12, "./images/car.data") car_rom(
     .clk(clk65M),
     .address(car_adress),
     .rgb_out(car_data)

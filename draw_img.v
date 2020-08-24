@@ -27,8 +27,7 @@ module draw_img
     output reg vsync_out,
     output reg vblnk_out,
     output reg [11:0] rgb_out,
-    output reg [ADDR_WIDTH-1:0] pixel_addr,
-    output wire frame_ended_out
+    output reg [ADDR_WIDTH-1:0] pixel_addr
 );
 
 reg [11:0] rgb_out_nxt;
@@ -72,7 +71,9 @@ begin
     begin
         if(hcount_in >= xpos && hcount_in < (xpos + RECT_WIDTH) && vcount_in >= ypos && vcount_in < (ypos + RECT_LENGTH))
         begin
-            rgb_out_nxt = rgb_pixel;
+            if(rgb_pixel != 12'hfac) begin
+                rgb_out_nxt = rgb_pixel;
+            end
             pixel_addr_nxt = { (addry[(ADDR_WIDTH/2)-1:0]), (addrx[(ADDR_WIDTH/2)-1:0]) };
         end
     end
@@ -118,13 +119,6 @@ delay #(1,2) hblnk_delay(
  .rst(rst),
  .din(hblnk_in),
  .dout(hblnk_delayed)
-);
-
-delay #(1,2) frame_ended_delay(
- .clk(pclk),
- .rst(rst),
- .din(frame_ended_in),
- .dout(frame_ended_out)
 );
 
 endmodule
