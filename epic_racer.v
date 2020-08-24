@@ -37,7 +37,7 @@ clk_wiz_0 my_clk(
   );
  
 wire [10:0] vcount, hcount, vcount2, hcount2, vcount3, hcount3;
-wire vsync, vblnk, hsync, hblnk, frame_ended, vsync2, vblnk2, hsync2, hblnk2, frame_ended2, vsync3, vblnk3, hsync3, hblnk3, frame_ended3;
+wire vsync, vblnk, hsync, hblnk, vsync2, vblnk2, hsync2, hblnk2, vsync3, vblnk3, hsync3, hblnk3;
 
 xga_timing my_timing (
     .vcount(vcount),
@@ -47,8 +47,7 @@ xga_timing my_timing (
     .hsync(hsync),
     .hblnk(hblnk),
     .pclk(clk65M),
-    .rst(rst),
-    .frame_ended(frame_ended)
+    .rst(rst)
 );
 
 
@@ -87,7 +86,6 @@ draw_img #(1024, 768, 14) draw_background(
     .hblnk_out(hblnk2),
     .vsync_out(vsync2),
     .hsync_out(hsync2)
-   // .frame_ended(frame_ended2)
 );
 
 image_rom #(128, 128, 14, "./images/tile.data") background_tile(
@@ -116,7 +114,6 @@ draw_img #(1024, 768, 14) draw_track(
     .hblnk_out(hblnk3),
     .vsync_out(vsync3),
     .hsync_out(hsync3)
-    //.frame_ended(frame_ended3)
 );
 
 image_rom #(128, 128, 14, "./images/track.data") track_test_tile(
@@ -171,11 +168,11 @@ debouncer btnU_debouncer(
 car_ctl my_car_ctl(
     .pclk(clk65M),
     .rst(rst),
-    .frame_ended(frame_ended),
     .key({ btnR_D, btnL_D, btnD_D, btnU_D }),
     .xpos(xpos),
     .ypos(ypos)
 );
+
 /*
 keyboard my_keyboard(
     .clk(clk100M),

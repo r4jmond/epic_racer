@@ -28,7 +28,6 @@ module draw_img
     output reg vblnk_out,
     output reg [11:0] rgb_out,
     output reg [ADDR_WIDTH-1:0] pixel_addr
-    //output wire frame_ended_out
 );
 
 reg [11:0] rgb_out_nxt;
@@ -121,12 +120,5 @@ delay #(1,2) hblnk_delay(
  .din(hblnk_in),
  .dout(hblnk_delayed)
 );
-/*
-delay #(1,2) frame_ended_delay(
- .clk(pclk),
- .rst(rst),
- .din(frame_ended_in),
- .dout(frame_ended_out)
-);
-*/
+
 endmodule
