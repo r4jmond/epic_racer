@@ -16,6 +16,7 @@ module draw_img
     input wire pclk,
     input wire rst,
     input wire visible,
+    input wire [1:0] rotation,
     input wire [11:0] rgb_in,
     input wire [11:0] rgb_pixel,
     input wire [10:0] xpos,
@@ -29,6 +30,11 @@ module draw_img
     output reg [11:0] rgb_out,
     output reg [ADDR_WIDTH-1:0] pixel_addr
 );
+
+localparam NO_ROTATION = 2'b00;
+localparam ROTATE_90 = 2'b01;
+localparam ROTATE_270 = 2'b11;
+localparam ROTATE_180 = 2'b10;
 
 reg [11:0] rgb_out_nxt;
 reg [ADDR_WIDTH-1:0] pixel_addr_nxt;
@@ -62,8 +68,28 @@ always @(posedge pclk)
 
 always @*
 begin
-    addrx = hcount_in - xpos;
-    addry = vcount_in - ypos;
+    case(rotation)
+    NO_ROTATION:
+    begin
+        addrx = hcount_in - xpos;
+        addry = vcount_in - ypos;
+    end
+    ROTATE_90:
+    begin
+        addrx = vcount_in - ypos;
+        addry = hcount_in - xpos;
+    end
+    ROTATE_180:
+    begin
+        addrx = RECT_WIDTH - 1 - (hcount_in - xpos);
+        addry = RECT_LENGTH - 1 - (vcount_in - ypos);
+    end
+    ROTATE_270:
+    begin
+        addrx = RECT_LENGTH - 1 - (vcount_in - ypos);
+        addry = RECT_WIDTH - 1 - (hcount_in - xpos);
+    end
+    endcase
     rgb_out_nxt = rgb_in;
     pixel_addr_nxt = 0;
     
