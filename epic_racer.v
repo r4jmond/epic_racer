@@ -38,6 +38,7 @@ clk_wiz_0 my_clk(
  
 wire [10:0] vcount, hcount, vcount2, hcount2, vcount3, hcount3;
 wire vsync, vblnk, hsync, hblnk, vsync2, vblnk2, hsync2, hblnk2, vsync3, vblnk3, hsync3, hblnk3;
+wire frame_ended;
 
 xga_timing my_timing (
     .vcount(vcount),
@@ -47,13 +48,13 @@ xga_timing my_timing (
     .hsync(hsync),
     .hblnk(hblnk),
     .pclk(clk65M),
-    .rst(rst)
+    .rst(rst),
+    .frame_ended(frame_ended)
 );
 
-
-
 wire [11:0] bg_data, track_data, car_data;
-wire [13:0] bg_adress, track_adress;
+wire [13:0] bg_adress;
+wire [15:0] track_adress;
 wire [11:0] car_adress;
 wire [11:0] rgb_bt, rgb_tc;
 wire [10:0] xpos, ypos;
@@ -94,7 +95,8 @@ image_rom #(128, 128, 14, "./images/tile.data") background_tile(
     .rgb_out(bg_data)
 );
 
-draw_img #(1024, 768, 14) draw_track(
+
+draw_tiles #(16, 16, 16) draw_track(
     .vcount_in(vcount2),
     .hcount_in(hcount2),
     .vsync_in(vsync2),
@@ -116,7 +118,7 @@ draw_img #(1024, 768, 14) draw_track(
     .hsync_out(hsync3)
 );
 
-image_rom #(128, 128, 14, "./images/track.data") track_test_tile(
+image_rom #(256, 240, 16, "./images/track2.data") track_tiles(
     .clk(clk65M),
     .address(track_adress),
     .rgb_out(track_data)
