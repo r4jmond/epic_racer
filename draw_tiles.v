@@ -29,15 +29,15 @@ module draw_tiles
 );
 
 reg [11:0] rgb_out_nxt;
-reg [10:0] xpos, ypos, xpos_nxt, ypos_nxt;
+wire [10:0] xpos, ypos, xpos_nxt, ypos_nxt;
 reg [10:0] tile_x_pos, tile_y_pos;
 reg [ADDR_WIDTH-1:0] pixel_addr_nxt;
 reg [10:0] addrx, addry;
 wire [10:0] vcount_delayed, hcount_delayed;
 wire hsync_delayed, vsync_delayed, hblnk_delayed, vblnk_delayed;
-/*
-assign 
-assign */
+
+assign xpos = (hcount_in / 16);
+assign ypos = (vcount_in / 16);
 
 always @(posedge pclk)
     if(rst)
@@ -50,8 +50,8 @@ always @(posedge pclk)
         vblnk_out <= 0;
         rgb_out <= 0;
         pixel_addr <= 0;
-        //xpos <= 0;
-        //ypos <= 0;
+    //    xpos <= 0;
+    //    ypos <= 0;
     end
     else
     begin
@@ -63,16 +63,16 @@ always @(posedge pclk)
         vblnk_out <= vblnk_delayed;
         rgb_out <= rgb_out_nxt;
         pixel_addr <= pixel_addr_nxt;
-        //xpos <= xpos_nxt;
-        //ypos <= ypos_nxt;
+      //  xpos <= xpos_nxt;
+       // ypos <= ypos_nxt;
     end
 
 always @*
 begin
-    xpos = (hcount_in / 16);
-    ypos = (vcount_in / 16);
-    addrx = hcount_in + tile_x_pos - xpos;
-    addry = vcount_in + tile_y_pos - ypos;
+   // addrx = hcount_in - (xpos * 16);
+    //addry = vcount_in - (ypos * 16);
+    addrx = hcount_in + tile_x_pos - (xpos * 16);
+    addry = vcount_in + tile_y_pos - (ypos * 16);
     rgb_out_nxt = rgb_in;
     pixel_addr_nxt = 0;/*
     if((hcount_in >= xpos + RECT_WIDTH) && (hcount_in <= 1024))
