@@ -28,6 +28,9 @@ module draw_tiles
     output reg [ADDR_WIDTH-1:0] pixel_addr
 );
 
+localparam SCREEN_WIDTH = 1024;
+localparam SCREEN_HEIGHT = 768;
+
 reg [11:0] rgb_out_nxt;
 wire [10:0] xpos, ypos, xpos_nxt, ypos_nxt;
 reg [10:0] tile_x_pos, tile_y_pos;
@@ -50,8 +53,6 @@ always @(posedge pclk)
         vblnk_out <= 0;
         rgb_out <= 0;
         pixel_addr <= 0;
-    //    xpos <= 0;
-    //    ypos <= 0;
     end
     else
     begin
@@ -63,52 +64,23 @@ always @(posedge pclk)
         vblnk_out <= vblnk_delayed;
         rgb_out <= rgb_out_nxt;
         pixel_addr <= pixel_addr_nxt;
-      //  xpos <= xpos_nxt;
-       // ypos <= ypos_nxt;
     end
 
 always @*
 begin
-   // addrx = hcount_in - (xpos * 16);
-    //addry = vcount_in - (ypos * 16);
     addrx = hcount_in + tile_x_pos - (xpos * 16);
     addry = vcount_in + tile_y_pos - (ypos * 16);
     rgb_out_nxt = rgb_in;
-    pixel_addr_nxt = 0;/*
-    if((hcount_in >= xpos + RECT_WIDTH) && (hcount_in <= 1024))
-    begin
-        if(xpos < (1024 - RECT_LENGTH))
-        begin
-            xpos_nxt = xpos + 16;
-        end
-        else
-        begin
-            xpos_nxt = 0;
-            if(ypos_nxt < (768 - RECT_WIDTH))
-            begin
-                ypos_nxt = ypos + 16;
-            end
-            else ypos_nxt = 0;
-        end
-    end*/
+    pixel_addr_nxt = 0;
     if(visible)
     begin
-        if(hcount_in >= 0 && hcount_in < (1024) && vcount_in >= 0 && vcount_in < (768))
+        if(hcount_in >= 0 && hcount_in < (SCREEN_WIDTH) && vcount_in >= 0 && vcount_in < (SCREEN_HEIGHT))
         begin
-           // if(rgb_pixel != 12'hfac) begin
-                rgb_out_nxt = rgb_pixel;
-          //  end
+            rgb_out_nxt = rgb_pixel;
             pixel_addr_nxt = { (addry[(ADDR_WIDTH/2)-1:0]), (addrx[(ADDR_WIDTH/2)-1:0]) };
         end
     end
 end
-
-
-/*xpos += 16 => tile_num += 1;
-BUT
-if xpos >= 1024, then ypos += 16;
-SO
-if ypos += 16; tile_num += 16;*/ 
 
 always @*
 case ((ypos * 64) + xpos)

@@ -3,7 +3,6 @@
 module car_ctl(
     input wire pclk,
     input wire rst,
-    input wire frame_ended,
     input wire [3:0] key,
     output reg [10:0] xpos,
     output reg [10:0] ypos,
@@ -40,6 +39,7 @@ localparam DIR_UP = 2'b10;
 
 localparam DELAY_MIN = 100000;
 localparam DELAY_STEP = 10000;
+localparam DELAY_SLOWED = 350000;
 localparam DELAY_MAX = 400000;
 
 reg [10:0] xpos_nxt, ypos_nxt;
@@ -91,7 +91,7 @@ begin
     endcase*/
 
     if(xtimer < xdelay) xtimer_nxt = xtimer + 1;
-    else 
+    else
     begin
         xtimer_nxt = 0;
         if(xdelay < DELAY_MAX)
@@ -144,6 +144,7 @@ begin
             if((ytimer >= ydelay) && (ydelay < DELAY_MAX)) ydelay_nxt = ydelay + DELAY_STEP;
         end
     endcase
+end
   /*  if(timer >= 2000000) begin
         timer_nxt = 0;
         xpos_nxt  = xpos + xspeed;
@@ -172,10 +173,5 @@ begin
         if(yspeed > 0) yspeed_nxt = yspeed - 1;
         else if(yspeed < 0) yspeed_nxt = yspeed + 1;*/
     //end
-   /* if(xspeed > SPEED_MAX) xspeed_nxt = SPEED_MAX;
-    else if (xspeed < SPEED_MIN) xspeed_nxt = SPEED_MIN;
-    if(yspeed > SPEED_MAX) yspeed_nxt = SPEED_MAX;
-    else if (yspeed < SPEED_MIN) yspeed_nxt = SPEED_MIN;*/
-end
 
 endmodule
