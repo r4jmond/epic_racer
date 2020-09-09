@@ -38,9 +38,9 @@ localparam DIR_RIGHT = 2'b01;
 localparam DIR_LEFT = 2'b11;
 localparam DIR_UP = 2'b10;
 
-localparam DELAY_MIN = 100000;
-localparam DELAY_STEP = 5000;
-localparam DELAY_SLOWED = 350000;
+localparam DELAY_MIN = 160000;
+localparam DELAY_STEP = 2000;
+localparam DELAY_SLOWED = 320000;
 localparam DELAY_MAX = 400000;
 
 reg [10:0] xpos_nxt, ypos_nxt;
@@ -88,10 +88,10 @@ begin
     else
     begin
         xtimer_nxt = 0;
-        if(xdelay < DELAY_MAX)
+        if(xdelay <= DELAY_MAX)
         begin
-            if(move_dir == DIR_LEFT) xpos_nxt = (car_x_pos <= 0) ? 0 : (xpos - 1);
-            else if(move_dir == DIR_RIGHT) xpos_nxt = (car_x_pos >= SCREEN_WIDTH) ? (SCREEN_WIDTH - 10) : (xpos + 1);
+            if      ( (move_dir == DIR_LEFT) || (move_dir_prev == DIR_LEFT))  xpos_nxt = (car_x_pos <= 0) ? 0 : (xpos - 1);
+            else if ( (move_dir == DIR_RIGHT) || (move_dir_prev == DIR_RIGHT)) xpos_nxt = (car_x_pos >= SCREEN_WIDTH) ? (SCREEN_WIDTH - 10) : (xpos + 1);
         end
     end
 
@@ -99,32 +99,34 @@ begin
     else
     begin
         ytimer_nxt = 0;
-        if(ydelay < DELAY_MAX)
+        if(ydelay <= DELAY_MAX)
         begin
-            if(move_dir == DIR_UP) ypos_nxt = (car_y_pos <= 0) ? 0 : ypos - 1;
-            else if(move_dir == DIR_DOWN) ypos_nxt = (car_y_pos >= SCREEN_LENGTH) ? (SCREEN_LENGTH - 10) : ypos + 1; 
+            if ((move_dir == DIR_UP) || (move_dir_prev == DIR_UP))   ypos_nxt = (car_y_pos <= 0) ? 0 : ypos - 1;
+            else if ((move_dir == DIR_DOWN) || (move_dir_prev == DIR_DOWN)) ypos_nxt = (car_y_pos >= SCREEN_LENGTH) ? (SCREEN_LENGTH - 10) : ypos + 1; 
         end
     end
 
-    if( (car_x_pos <= (TILE_SIZE * 3)) || (car_x_pos >= (SCREEN_WIDTH - TILE_SIZE)) || (car_y_pos <= TILE_SIZE) || (car_y_pos >= (SCREEN_LENGTH - TILE_SIZE)) ||
-        (car_x_pos >= 912 && car_y_pos <= 400) || (car_x_pos >= 48 && car_x_pos <= 64 && car_y_pos <= 96) ||
-        (car_x_pos >= 64 && car_x_pos <= 80 && car_y_pos <= 64) || (car_x_pos >= 80 && car_x_pos <= 96 && car_y_pos <= 48) || 
-        (car_x_pos >= 96 && car_x_pos <= 112 && car_y_pos <= 32) || (car_y_pos <= 16) || 
-        (car_x_pos >= 140  && car_x_pos <= 168 && car_y_pos >= 136 && car_y_pos <= 164) ||
-        (car_x_pos >= 764  && car_x_pos <= 792 && car_y_pos >= 136 && car_y_pos <= 164) ||
-        (car_x_pos >= 176  && car_x_pos <= 592 && car_y_pos >= 160 && car_y_pos <= 304) ||
-        (car_x_pos >= 480  && car_x_pos <= 540 && car_y_pos >= 332 && car_y_pos <= 352) ||
-        (car_x_pos >= 268  && car_x_pos <= 294 && car_y_pos >= 424 && car_y_pos <= 488) ||
-        (car_x_pos >= 324  && car_x_pos <= 380 && car_y_pos >= 488 && car_y_pos <= 512) ||
-        (car_x_pos >= 548  && car_x_pos <= 604 && car_y_pos >= 488 && car_y_pos <= 512) ||
-        (car_x_pos >= 740  && car_x_pos <= 796 && car_y_pos >= 488 && car_y_pos <= 512) ||
-        (car_x_pos >= 832  && car_x_pos <= 912 && car_y_pos >= 496 && car_y_pos <= 512) ||
-        (car_x_pos >= 336  && car_x_pos <= 784 && car_y_pos >= 592 && car_y_pos <= 608) ||
-        (car_x_pos >= 800  && car_x_pos <= 824 && car_y_pos >= 596 && car_y_pos <= 666) ||
-        (car_x_pos >= 304  && car_x_pos <= 784 && car_y_pos >= 656 && car_y_pos <= 672) ||
-        (car_x_pos >= 324  && car_x_pos <= 380 && car_y_pos >= 488 && car_y_pos <= 512) ||
-        (car_x_pos >= 50  && car_x_pos <= 234 && car_y_pos >= 720 && car_y_pos <= 752) ||
-        (car_x_pos >= 946  && car_x_pos <= 1008 && car_y_pos >= 720 && car_y_pos <= 752)) 
+    if( (car_x_pos <= (TILE_SIZE * 3)) || (car_x_pos >= (SCREEN_WIDTH - TILE_SIZE)) || (car_y_pos <= TILE_SIZE) || 
+        (car_y_pos >= (SCREEN_LENGTH - TILE_SIZE)) || (car_x_pos >= 912 && car_y_pos <= 400)                    || 
+        (car_x_pos >= 48 && car_x_pos <= 64 && car_y_pos <= 96)                                                 || 
+        (car_x_pos >= 64 && car_x_pos <= 80 && car_y_pos <= 64)                                                 || 
+        (car_x_pos >= 80 && car_x_pos <= 96 && car_y_pos <= 48)                                                 || 
+        (car_x_pos >= 96 && car_x_pos <= 112 && car_y_pos <= 32)                                                || 
+        (car_x_pos >= 140  && car_x_pos <= 168 && car_y_pos >= 136 && car_y_pos <= 164)                         ||
+        (car_x_pos >= 764  && car_x_pos <= 792 && car_y_pos >= 136 && car_y_pos <= 164)                         ||
+        (car_x_pos >= 176  && car_x_pos <= 592 && car_y_pos >= 160 && car_y_pos <= 304)                         ||
+        (car_x_pos >= 480  && car_x_pos <= 540 && car_y_pos >= 332 && car_y_pos <= 352)                         ||
+        (car_x_pos >= 268  && car_x_pos <= 294 && car_y_pos >= 424 && car_y_pos <= 488)                         ||
+        (car_x_pos >= 324  && car_x_pos <= 380 && car_y_pos >= 488 && car_y_pos <= 512)                         ||
+        (car_x_pos >= 548  && car_x_pos <= 604 && car_y_pos >= 488 && car_y_pos <= 512)                         ||
+        (car_x_pos >= 740  && car_x_pos <= 796 && car_y_pos >= 488 && car_y_pos <= 512)                         ||
+        (car_x_pos >= 832  && car_x_pos <= 912 && car_y_pos >= 496 && car_y_pos <= 512)                         ||
+        (car_x_pos >= 336  && car_x_pos <= 784 && car_y_pos >= 592 && car_y_pos <= 608)                         ||
+        (car_x_pos >= 800  && car_x_pos <= 824 && car_y_pos >= 596 && car_y_pos <= 666)                         ||
+        (car_x_pos >= 304  && car_x_pos <= 784 && car_y_pos >= 656 && car_y_pos <= 672)                         ||
+        (car_x_pos >= 324  && car_x_pos <= 380 && car_y_pos >= 488 && car_y_pos <= 512)                         ||
+        (car_x_pos >= 50  && car_x_pos <= 234 && car_y_pos >= 720 && car_y_pos <= 752)                          ||
+        (car_x_pos >= 946  && car_x_pos <= 1008 && car_y_pos >= 720 && car_y_pos <= 752) ) 
         begin
             if(move_dir == DIR_DOWN) begin
                 ypos_nxt = ypos - 1;
@@ -138,7 +140,7 @@ begin
             else if(move_dir == DIR_RIGHT) begin
                 xpos_nxt = xpos - 1;
             end
-       end
+        end
     
     if(move_dir == DIR_DOWN) begin
         car_x_pos = xpos + 32;
@@ -164,36 +166,36 @@ begin
     case (key)
         KEY_UP:
         begin
-            move_dir_nxt = DIR_UP;
             move_dir_prev_nxt = move_dir;
+            move_dir_nxt = DIR_UP;
             if((ytimer >= ydelay) && (ydelay > DELAY_MIN)) ydelay_nxt = ydelay - DELAY_STEP;
             if((xtimer >= xdelay) && (xdelay < DELAY_MAX)) xdelay_nxt = xdelay + DELAY_STEP;
         end
         KEY_DOWN:
         begin
-            move_dir_nxt = DIR_DOWN;
             move_dir_prev_nxt = move_dir;
+            move_dir_nxt = DIR_DOWN;
             if((ytimer >= ydelay) && (ydelay > DELAY_MIN)) ydelay_nxt = ydelay - DELAY_STEP;
             if((xtimer >= xdelay) && (xdelay < DELAY_MAX)) xdelay_nxt = xdelay + DELAY_STEP;
         end
         KEY_LEFT:
         begin
-            move_dir_nxt = DIR_LEFT;
             move_dir_prev_nxt = move_dir;
+            move_dir_nxt = DIR_LEFT;
             if((xtimer >= xdelay) && (xdelay > DELAY_MIN)) xdelay_nxt = xdelay - DELAY_STEP;
             if((ytimer >= ydelay) && (ydelay < DELAY_MAX)) ydelay_nxt = ydelay + DELAY_STEP;
         end
         KEY_RIGHT:
         begin
-            move_dir_nxt = DIR_RIGHT;
             move_dir_prev_nxt = move_dir;
+            move_dir_nxt = DIR_RIGHT;
             if((xtimer >= xdelay) && (xdelay > DELAY_MIN)) xdelay_nxt = xdelay - DELAY_STEP;
             if((ytimer >= ydelay) && (ydelay < DELAY_MAX)) ydelay_nxt = ydelay + DELAY_STEP;
         end
         default:
         begin
+            move_dir_prev_nxt = move_dir_prev;
             move_dir_nxt = move_dir;
-            move_dir_prev_nxt = move_dir_prev; 
             if((xtimer >= xdelay) && (xdelay < DELAY_MAX)) xdelay_nxt = xdelay + DELAY_STEP;
             if((ytimer >= ydelay) && (ydelay < DELAY_MAX)) ydelay_nxt = ydelay + DELAY_STEP;
         end
