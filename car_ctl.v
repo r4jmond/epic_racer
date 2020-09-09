@@ -11,8 +11,9 @@ module car_ctl(
 
 localparam CAR_WIDTH = 64;
 localparam CAR_LENGTH = 64;
-localparam X_MAX = 1024 - CAR_WIDTH;
-localparam Y_MAX = 768 - CAR_LENGTH;
+localparam SCREEN_WIDTH = 1024;
+localparam SCREEN_LENGTH = 768;
+localparam TILE_SIZE = 16;
 
 localparam KEY_UP = 4'b0001;
 localparam KEY_DOWN = 4'b0010;
@@ -46,18 +47,19 @@ reg [10:0] xpos_nxt, ypos_nxt;
 reg [2:0] state, state_nxt;
 reg [23:0] xtimer, xtimer_nxt, ytimer, ytimer_nxt;
 reg [23:0] xdelay, xdelay_nxt, ydelay, ydelay_nxt;
-reg [1:0] move_dir_nxt;
+reg [1:0] move_dir_nxt, move_dir_prev, move_dir_prev_nxt;
 reg [10:0] car_x_pos, car_y_pos;
 
 
 always @(posedge pclk)
 if(rst)
 begin
-    xpos <= 490;
-    ypos <= 90;
+    xpos <= 400;
+    ypos <= 70;
     xtimer <= 0;
     ytimer <= 0;
     move_dir <= DIR_RIGHT;
+    move_dir_prev <= DIR_RIGHT;
     xdelay <= 0;
     ydelay <= 0;
 end
@@ -68,6 +70,7 @@ begin
     xtimer <= xtimer_nxt;
     ytimer <= ytimer_nxt;
     move_dir <= move_dir_nxt;
+    move_dir_prev <= move_dir_prev_nxt;
     xdelay <= xdelay_nxt;
     ydelay <= ydelay_nxt;
 end
@@ -75,6 +78,7 @@ end
 always @*
 begin
     move_dir_nxt = move_dir;
+    move_dir_prev_nxt = move_dir_prev;
     xpos_nxt = xpos;
     ypos_nxt = ypos;
     xdelay_nxt = xdelay;
@@ -86,8 +90,8 @@ begin
         xtimer_nxt = 0;
         if(xdelay < DELAY_MAX)
         begin
-            if(move_dir == DIR_LEFT) xpos_nxt = (car_x_pos <= 48) ? 48 : xpos - 1;
-            else if(move_dir == DIR_RIGHT) xpos_nxt = (car_x_pos >= X_MAX) ? X_MAX : xpos + 1;
+            if(move_dir == DIR_LEFT) xpos_nxt = (car_x_pos <= 0) ? 0 : (xpos - 1);
+            else if(move_dir == DIR_RIGHT) xpos_nxt = (car_x_pos >= SCREEN_WIDTH) ? (SCREEN_WIDTH - 10) : (xpos + 1);
         end
     end
 
@@ -97,12 +101,13 @@ begin
         ytimer_nxt = 0;
         if(ydelay < DELAY_MAX)
         begin
-            if(move_dir == DIR_UP) ypos_nxt = (ypos <= 1) ? 1 : ypos - 1;
-            else if(move_dir == DIR_DOWN) ypos_nxt = (ypos >= Y_MAX) ? Y_MAX : ypos + 1; 
+            if(move_dir == DIR_UP) ypos_nxt = (car_y_pos <= 0) ? 0 : ypos - 1;
+            else if(move_dir == DIR_DOWN) ypos_nxt = (car_y_pos >= SCREEN_LENGTH) ? (SCREEN_LENGTH - 10) : ypos + 1; 
         end
     end
 
-    if((car_x_pos >= 896 && car_y_pos <= 384) || (car_x_pos >= 48 && car_x_pos <= 64 && car_y_pos <= 96) || 
+    if( (car_x_pos <= (TILE_SIZE * 3)) || (car_x_pos >= (SCREEN_WIDTH - TILE_SIZE)) || (car_y_pos <= TILE_SIZE) || (car_y_pos >= (SCREEN_LENGTH - TILE_SIZE)) ||
+        (car_x_pos >= 912 && car_y_pos <= 400) || (car_x_pos >= 48 && car_x_pos <= 64 && car_y_pos <= 96) ||
         (car_x_pos >= 64 && car_x_pos <= 80 && car_y_pos <= 64) || (car_x_pos >= 80 && car_x_pos <= 96 && car_y_pos <= 48) || 
         (car_x_pos >= 96 && car_x_pos <= 112 && car_y_pos <= 32) || (car_y_pos <= 16) || 
         (car_x_pos >= 140  && car_x_pos <= 168 && car_y_pos >= 136 && car_y_pos <= 164) ||
@@ -119,7 +124,7 @@ begin
         (car_x_pos >= 304  && car_x_pos <= 784 && car_y_pos >= 656 && car_y_pos <= 672) ||
         (car_x_pos >= 324  && car_x_pos <= 380 && car_y_pos >= 488 && car_y_pos <= 512) ||
         (car_x_pos >= 50  && car_x_pos <= 234 && car_y_pos >= 720 && car_y_pos <= 752) ||
-        (car_x_pos >= 946  && car_x_pos <= 1008 && car_y_pos >= 730 && car_y_pos <= 752)) 
+        (car_x_pos >= 946  && car_x_pos <= 1008 && car_y_pos >= 720 && car_y_pos <= 752)) 
         begin
             if(move_dir == DIR_DOWN) begin
                 ypos_nxt = ypos - 1;
@@ -133,7 +138,6 @@ begin
             else if(move_dir == DIR_RIGHT) begin
                 xpos_nxt = xpos - 1;
             end
-   
        end
     
     if(move_dir == DIR_DOWN) begin
@@ -161,30 +165,35 @@ begin
         KEY_UP:
         begin
             move_dir_nxt = DIR_UP;
+            move_dir_prev_nxt = move_dir;
             if((ytimer >= ydelay) && (ydelay > DELAY_MIN)) ydelay_nxt = ydelay - DELAY_STEP;
             if((xtimer >= xdelay) && (xdelay < DELAY_MAX)) xdelay_nxt = xdelay + DELAY_STEP;
         end
         KEY_DOWN:
         begin
             move_dir_nxt = DIR_DOWN;
+            move_dir_prev_nxt = move_dir;
             if((ytimer >= ydelay) && (ydelay > DELAY_MIN)) ydelay_nxt = ydelay - DELAY_STEP;
             if((xtimer >= xdelay) && (xdelay < DELAY_MAX)) xdelay_nxt = xdelay + DELAY_STEP;
         end
         KEY_LEFT:
         begin
             move_dir_nxt = DIR_LEFT;
+            move_dir_prev_nxt = move_dir;
             if((xtimer >= xdelay) && (xdelay > DELAY_MIN)) xdelay_nxt = xdelay - DELAY_STEP;
             if((ytimer >= ydelay) && (ydelay < DELAY_MAX)) ydelay_nxt = ydelay + DELAY_STEP;
         end
         KEY_RIGHT:
         begin
             move_dir_nxt = DIR_RIGHT;
+            move_dir_prev_nxt = move_dir;
             if((xtimer >= xdelay) && (xdelay > DELAY_MIN)) xdelay_nxt = xdelay - DELAY_STEP;
             if((ytimer >= ydelay) && (ydelay < DELAY_MAX)) ydelay_nxt = ydelay + DELAY_STEP;
         end
         default:
         begin
             move_dir_nxt = move_dir;
+            move_dir_prev_nxt = move_dir_prev; 
             if((xtimer >= xdelay) && (xdelay < DELAY_MAX)) xdelay_nxt = xdelay + DELAY_STEP;
             if((ytimer >= ydelay) && (ydelay < DELAY_MAX)) ydelay_nxt = ydelay + DELAY_STEP;
         end
