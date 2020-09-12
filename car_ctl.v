@@ -48,10 +48,15 @@ reg [2:0] state, state_nxt;
 reg [23:0] xtimer, xtimer_nxt, ytimer, ytimer_nxt;
 reg [23:0] xdelay, xdelay_nxt, ydelay, ydelay_nxt;
 reg [1:0] move_dir_nxt, move_dir_prev, move_dir_prev_nxt;
-reg [10:0] car_x_start, car_x_end, car_y_start, car_y_end;
+wire [10:0] car_x_start, car_x_end, car_y_start, car_y_end;
 reg [10:0] car_x_start_prev, car_x_end_prev, car_y_start_prev, car_y_end_prev;
 reg moving_down, moving_up, moving_left, moving_right;
+reg moving_down_nxt, moving_up_nxt, moving_left_nxt, moving_right_nxt;
 
+assign car_x_start = xpos + 20;
+assign car_y_start = ypos + 20;
+assign car_x_end = xpos + 43;
+assign car_y_end = ypos + 43;
 
 always @(posedge pclk)
 if(rst)
@@ -64,10 +69,18 @@ begin
     move_dir_prev <= DIR_RIGHT;
     xdelay <= 0;
     ydelay <= 0;
-    car_x_start_prev <= car_x_start;
-    car_x_end_prev <= car_x_end;
-    car_y_start_prev <= car_y_start;
-    car_y_end_prev <= car_y_end;
+    car_x_start_prev <= 0;
+    car_x_end_prev <= 0;
+    car_y_start_prev <= 0;
+    car_y_end_prev <= 0;
+    moving_right <= 0;
+    moving_left <= 0;
+    moving_down <= 0;
+    moving_up <= 0;
+    /*car_x_start <= 0;
+    car_x_end <= 0;
+    car_y_start <= 0;
+    car_y_end <= 0;*/
 end
 else
 begin
@@ -83,6 +96,14 @@ begin
     car_x_end_prev <= car_x_end;
     car_y_start_prev <= car_y_start;
     car_y_start_prev <= car_y_end;
+    moving_right <= moving_right_nxt;
+    moving_left <= moving_left_nxt;
+    moving_down <= moving_down_nxt;
+    moving_up <= moving_up_nxt;
+    /*car_x_start <= car_x_start_nxt;
+    car_x_end <= car_x_end_nxt;
+    car_y_start <= car_y_start_nxt;
+    car_y_end <= car_y_end_nxt;*/
 end
 
 always @*
@@ -94,41 +115,11 @@ begin
     xdelay_nxt = xdelay;
     ydelay_nxt = ydelay;
 
-    moving_left = 0;
-    moving_right = 0;
-    moving_down = 0;
-    moving_up = 0;
+    moving_left_nxt = 0;
+    moving_right_nxt = 0;
+    moving_down_nxt = 0;
+    moving_up_nxt = 0;
 
-    /*if(move_dir == DIR_DOWN) begin 
-        car_x_start = xpos + 20;
-        car_x_end = xpos + 43;
-        car_y_start = ypos + 12;
-        car_y_end = ypos + 54;
-    end
-    else if(move_dir == DIR_UP) begin
-        car_x_start = xpos + 20;
-        car_x_end = xpos + 43;
-        car_y_start = ypos + 9;
-        car_y_end = ypos + 51;
-    end
-    else if(move_dir == DIR_LEFT) begin
-        car_x_start = xpos + 9;
-        car_x_end = xpos + 51;
-        car_y_start = ypos + 20;
-        car_y_end = ypos + 43;
-    end
-    else if(move_dir == DIR_RIGHT) begin
-        car_x_start = xpos + 12;
-        car_x_end = xpos + 54;
-        car_y_start = ypos + 20;
-        car_y_end = ypos + 43;
-    end
-    else begin*/
-        car_x_start = xpos + 20;
-        car_x_end = xpos + 43;
-        car_y_start = ypos + 12;
-        car_y_end = ypos + 54;
-    //end
     
     if(xtimer < xdelay) xtimer_nxt = xtimer + 1;
     else
@@ -139,17 +130,12 @@ begin
             if ((move_dir == DIR_LEFT) || ((move_dir_prev == DIR_LEFT)  && (move_dir != DIR_RIGHT)))
             begin
                 xpos_nxt = (car_x_start <= 0) ? 0 : (xpos - 1);
-                moving_left = 1;
+                moving_left_nxt = 1;
             end
             else if ((move_dir == DIR_RIGHT) || ((move_dir_prev == DIR_RIGHT) && move_dir != DIR_LEFT))
             begin
                 xpos_nxt = (car_x_end >= SCREEN_WIDTH) ? xpos : (xpos + 1);
-                moving_right = 1;
-            end
-            else
-            begin
-                moving_right = 0;
-                moving_left = 0;
+                moving_right_nxt = 1;
             end
         end
     end
@@ -163,17 +149,12 @@ begin
             if ((move_dir == DIR_UP) || ((move_dir_prev == DIR_UP) && (move_dir != DIR_DOWN)))
             begin
                 ypos_nxt = (car_y_start <= 0) ? 0 : ypos - 1;
-                moving_up = 1;
+                moving_up_nxt = 1;
             end
             else if ((move_dir == DIR_DOWN) || ((move_dir_prev == DIR_DOWN) && (move_dir != DIR_UP)))
             begin
                 ypos_nxt = (car_y_end >= SCREEN_LENGTH) ? xpos : ypos + 1;
-                moving_down = 1;
-            end
-            else 
-            begin
-                moving_up = 0;
-                moving_down = 0;
+                moving_down_nxt = 1;
             end
         end
     end
@@ -200,7 +181,7 @@ begin
         (car_x_end >= 50   && car_x_start <= 234 && car_y_end >= 720 && car_y_start <= 752)                         ||
         (car_x_end >= 946  && car_x_start <= 1008 && car_y_end >= 720 && car_y_start <= 752) ) 
         begin
-            if((((car_x_start <= (TILE_SIZE * 3)) && (car_x_start_prev > (TILE_SIZE * 3))) || 
+            if(moving_left && (((car_x_start <= (TILE_SIZE * 3)) && (car_x_start_prev > (TILE_SIZE * 3))) || 
                 ((car_x_start <= 64)   && (car_x_start_prev > 64))  ||
                 ((car_x_start <= 80)   && (car_x_start_prev > 80))  ||
                 ((car_x_start <= 96)   && (car_x_start_prev > 96))  ||
@@ -221,7 +202,7 @@ begin
                 ((car_x_start <= 234)  && (car_x_start_prev > 234)) ||
                 ((car_x_start <= 1008) && (car_x_start_prev > 1008))
             )) xpos_nxt = xpos + 1;
-            else if((
+            else if(moving_right && (
                 ((car_x_end >= (SCREEN_WIDTH - TILE_SIZE)) && (car_x_end_prev < (SCREEN_WIDTH - TILE_SIZE))) || 
                 ((car_x_end >= 912) && (car_x_end_prev < 912)) ||
                 ((car_x_end >= 48 ) && (car_x_end_prev < 48 )) ||
@@ -284,20 +265,6 @@ begin
                 ((car_y_end >= 720) && (car_y_end_prev < 720))
             )) ypos_nxt = ypos - 1;
         end
-       /* begin
-            if(move_dir == DIR_DOWN) begin
-                ypos_nxt = ypos - 1;
-            end
-            else if(move_dir == DIR_UP) begin
-                ypos_nxt = ypos + 1;
-            end
-            else if(move_dir == DIR_LEFT) begin
-                xpos_nxt = xpos + 1;
-            end
-            else if(move_dir == DIR_RIGHT) begin
-                xpos_nxt = xpos - 1;
-            end
-        end*/
 
     case (key)
         KEY_UP:
@@ -336,6 +303,37 @@ begin
             if((ytimer >= ydelay) && (ydelay < DELAY_MAX)) ydelay_nxt = ydelay + DELAY_STEP;
         end
     endcase
+/*
+   if(move_dir == DIR_DOWN) begin 
+        car_x_start = xpos + 20;
+        car_y_start = ypos + 12;
+        car_x_end = xpos + 43;
+        car_y_end = ypos + 54;
+    end
+    else if(move_dir == DIR_UP) begin
+        car_x_start = xpos + 20;
+        car_y_start = ypos + 9;
+        car_x_end = xpos + 43;
+        car_y_end = ypos + 51;
+    end
+    else if(move_dir == DIR_LEFT) begin
+        car_x_start = xpos + 9;
+        car_y_start = ypos + 20;
+        car_x_end = xpos + 51;
+        car_y_end = ypos + 43;
+    end
+    else if(move_dir == DIR_RIGHT) begin
+        car_x_start = xpos + 12;
+        car_y_start = ypos + 20;
+        car_x_end = xpos + 54;
+        car_y_end = ypos + 43;
+    end
+    else begin
+        car_x_start = xpos + 20;
+        car_y_start = ypos + 12;
+        car_x_end = xpos + 43;
+        car_y_end = ypos + 54;
+    end*/
 end
 
 endmodule

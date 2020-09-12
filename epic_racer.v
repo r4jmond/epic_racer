@@ -118,7 +118,7 @@ draw_tiles #(16, 16, 16) draw_track(
     .hsync_out(hsync3)
 );
 
-image_rom #(256, 240, 16, "./images/track2.data") track_tiles(
+image_rom #(256, 240, 16, "./images/track.data") track_tiles(
     .clk(clk65M),
     .address(track_adress),
     .rgb_out(track_data)
