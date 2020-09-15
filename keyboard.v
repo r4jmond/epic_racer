@@ -108,47 +108,34 @@ always@(*)
   end 
   else if( TRIGGER == 1'b1 ) 
   */
-  always @(*)
-  begin
-    case( keycode[7:0] )
-      ARROW_LEFT: 
-	   begin
-         key = KEY_LEFT;
-         
-       end
-      ARROW_RIGHT: 
-	    begin
-          key = KEY_RIGHT;
-          
-         end
+always @*
+begin
+    case(keycode[7:0])
+    ARROW_LEFT: 
+	  begin
+        key = KEY_LEFT;
+    end
+    ARROW_RIGHT: 
+	  begin
+        key = KEY_RIGHT;     
+    end
 	  ARROW_UP : 
-	    begin
-          key= KEY_UP;
-          
-       end
-	  ARROW_DOWN : 
-	    begin
-          key = KEY_DOWN;
-          
-        end
-        /*
-	  SPACE : 
-	    begin
-          key = SPACE_k;
-          
-        end
-	  ESC : 
-	    begin
-          key = ESC_k;
-          
-        end
-        */
-     default: 
-	    begin
-         key = NULL;
-        
-        end
-     endcase
+	  begin
+        key= KEY_UP;   
+    end
+	  ARROW_DOWN:
+	  begin
+        key = KEY_DOWN;  
+    end
+	 /* ESC : 
+	 begin
+        key = ESC_k;  
+    end*/
+    default: 
+	  begin
+        key = NULL;
+    end
+    endcase
 end
 
           

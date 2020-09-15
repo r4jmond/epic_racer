@@ -22,8 +22,7 @@ wire clk100M, clk65M, gnd;
 clk_wiz_0 my_clk(
     .clk(clk),
     .clk_100M(clk100M),
-    .clk_65M(clk65M),
-    .reset(gnd)
+    .clk_65M(clk65M)
 );
 
   ODDR pclk_oddr (
@@ -52,23 +51,26 @@ xga_timing my_timing (
     .frame_ended(frame_ended)
 );
 
-wire [11:0] bg_data, track_data, car_data;
-wire [13:0] bg_adress;
+wire [11:0] menu_data, track_data, car_data;
+wire [15:0] menu_adress;
 wire [15:0] track_adress;
 wire [11:0] car_adress;
 wire [11:0] rgb_bt, rgb_tc;
 wire [10:0] xpos, ypos;
-wire bg_visible, track_visible, player_visible;
+wire splash_visible, car_select_visible, control_select_visible;
+wire track_visible, player_visible;
 
 main_fsm epic_racer_fsm (
     .pclk(clk65M),
     .rst(rst),
-    .bg_visible(bg_visible),
+    .splash_visible(splash_visible),
+    .car_select_visible(car_select_visible),
+    .control_select_visible(control_select_visible),
     .track_visible(track_visible),
     .player_visible(player_visible)
 );
 
-draw_img #(1024, 768, 14) draw_background(
+draw_menu #(16, 16, 16) draw_menu(
     .vcount_in(vcount),
     .hcount_in(hcount),
     .vsync_in(vsync),
@@ -77,9 +79,11 @@ draw_img #(1024, 768, 14) draw_background(
     .hblnk_in(hblnk),
     .pclk(clk65M),
     .rst(rst),
-    .visible(bg_visible),
-    .rgb_pixel(bg_data),
-    .pixel_addr(bg_adress),
+    .splash_visible(splash_visible),
+    .car_select_visible(car_select_visible),
+    .control_select_visible(control_select_visible),
+    .rgb_pixel(menu_data),
+    .pixel_addr(menu_adress),
     .rgb_out(rgb_bt),
     .hcount_out(hcount2),
     .vcount_out(vcount2),
@@ -89,14 +93,14 @@ draw_img #(1024, 768, 14) draw_background(
     .hsync_out(hsync2)
 );
 
-image_rom #(128, 128, 14, "./images/tile.data") background_tile(
+image_rom #(192, 160, 16, "./images/menu_tiles.data") menu_tiles(
     .clk(clk65M),
-    .address(bg_adress),
-    .rgb_out(bg_data)
+    .address(menu_adress),
+    .rgb_out(menu_data)
 );
 
 
-draw_tiles #(16, 16, 16) draw_track(
+draw_track #(16, 16, 16) draw_track(
     .vcount_in(vcount2),
     .hcount_in(hcount2),
     .vsync_in(vsync2),
@@ -126,7 +130,7 @@ image_rom #(256, 240, 16, "./images/track.data") track_tiles(
 
 wire [1:0] car_rotation;
 
-draw_img #(64, 64, 12) draw_car(
+draw_img #(64, 64, 12) draw_car_nitro(
     .vcount_in(vcount3),
     .hcount_in(hcount3),
     .vsync_in(vsync3),
@@ -145,6 +149,12 @@ draw_img #(64, 64, 12) draw_car(
     .vsync_out(vs),
     .hsync_out(hs),
     .rotation(car_rotation)
+);
+
+image_rom #(64, 64, 12, "./images/car_nitro.data") car_nitro_rom(
+    .clk(clk65M),
+    .address(car_adress),
+    .rgb_out(car_data)
 );
 
 wire btnR_D, btnL_D, btnD_D, btnU_D;
@@ -187,11 +197,5 @@ keyboard my_keyboard(
     .rst(rst),
     .key(keyboard_key)
 );*/
-
-image_rom #(64, 64, 12, "./images/car.data") car_rom(
-    .clk(clk65M),
-    .address(car_adress),
-    .rgb_out(car_data)
-);
 
 endmodule

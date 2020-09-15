@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module draw_tiles
+module draw_track
 #(parameter
     RECT_WIDTH = 16,
     RECT_LENGTH = 16,

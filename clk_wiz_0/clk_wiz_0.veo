@@ -75,7 +75,6 @@
     .clk_65M(clk_65M),     // output clk_65M
     .clk_100M(clk_100M),     // output clk_100M
     // Status and control signals
-    .reset(reset), // input reset
     .locked(locked),       // output locked
    // Clock in ports
     .clk(clk));      // input clk

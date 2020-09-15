@@ -6,7 +6,11 @@ module car_ctl(
     input wire [3:0] key,
     output reg [10:0] xpos,
     output reg [10:0] ypos,
-    output reg [1:0] move_dir
+    output reg [1:0] move_dir,
+    output wire [10:0] car_x_start, 
+    output wire [10:0] car_x_end,
+    output wire [10:0] car_y_start, 
+    output wire [10:0] car_y_end
 );
 
 localparam CAR_WIDTH = 64;
@@ -43,7 +47,6 @@ reg [2:0] state, state_nxt;
 reg [23:0] xtimer, xtimer_nxt, ytimer, ytimer_nxt;
 reg [23:0] xdelay, xdelay_nxt, ydelay, ydelay_nxt;
 reg [1:0] move_dir_nxt, move_dir_prev, move_dir_prev_nxt;
-wire [10:0] car_x_start, car_x_end, car_y_start, car_y_end;
 reg [10:0] car_x_start_prev, car_x_end_prev, car_y_start_prev, car_y_end_prev;
 reg moving_down, moving_up, moving_left, moving_right;
 reg moving_down_nxt, moving_up_nxt, moving_left_nxt, moving_right_nxt;
@@ -124,7 +127,7 @@ begin
         begin
             if ((move_dir == DIR_LEFT) || ((move_dir_prev == DIR_LEFT)  && (move_dir != DIR_RIGHT)))
             begin
-                xpos_nxt = (car_x_start <= 0) ? 0 : (xpos - 1);
+                xpos_nxt = (xpos <= 0) ? 0 : (xpos - 1);
                 moving_left_nxt = 1;
             end
             else if ((move_dir == DIR_RIGHT) || ((move_dir_prev == DIR_RIGHT) && move_dir != DIR_LEFT))
@@ -143,7 +146,7 @@ begin
         begin
             if ((move_dir == DIR_UP) || ((move_dir_prev == DIR_UP) && (move_dir != DIR_DOWN)))
             begin
-                ypos_nxt = (car_y_start <= 0) ? 0 : ypos - 1;
+                ypos_nxt = (ypos <= 0) ? 0 : ypos - 1;
                 moving_up_nxt = 1;
             end
             else if ((move_dir == DIR_DOWN) || ((move_dir_prev == DIR_DOWN) && (move_dir != DIR_UP)))

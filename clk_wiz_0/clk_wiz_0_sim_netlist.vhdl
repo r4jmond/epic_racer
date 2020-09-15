@@ -1,10 +1,10 @@
 -- Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2017.3 (win64) Build 2018833 Wed Oct  4 19:58:22 MDT 2017
--- Date        : Sat Jul 18 13:23:23 2020
+-- Date        : Mon Sep 14 13:24:26 2020
 -- Host        : DESKTOP-9K2AFQC running 64-bit major release  (build 9200)
 -- Command     : write_vhdl -force -mode funcsim
---               c:/Users/Rejmi/Documents/Vivado/uec2_projekt/src/clk_wiz_0/clk_wiz_0_sim_netlist.vhdl
+--               C:/Users/Rejmi/Documents/Vivado/uec2_projekt/src/clk_wiz_0/clk_wiz_0_sim_netlist.vhdl
 -- Design      : clk_wiz_0
 -- Purpose     : This VHDL netlist is a functional simulation representation of the design and should not be modified or
 --               synthesized. This netlist cannot be used for SDF annotated simulation.
@@ -18,7 +18,6 @@ entity clk_wiz_0_clk_wiz_0_clk_wiz is
   port (
     clk_65M : out STD_LOGIC;
     clk_100M : out STD_LOGIC;
-    reset : in STD_LOGIC;
     locked : out STD_LOGIC;
     clk : in STD_LOGIC
   );
@@ -167,7 +166,7 @@ mmcm_adv_inst: unisim.vcomponents.MMCME2_ADV
       PSEN => '0',
       PSINCDEC => '0',
       PWRDWN => '0',
-      RST => reset
+      RST => '0'
     );
 end STRUCTURE;
 library IEEE;
@@ -178,7 +177,6 @@ entity clk_wiz_0 is
   port (
     clk_65M : out STD_LOGIC;
     clk_100M : out STD_LOGIC;
-    reset : in STD_LOGIC;
     locked : out STD_LOGIC;
     clk : in STD_LOGIC
   );
@@ -193,7 +191,6 @@ inst: entity work.clk_wiz_0_clk_wiz_0_clk_wiz
       clk => clk,
       clk_100M => clk_100M,
       clk_65M => clk_65M,
-      locked => locked,
-      reset => reset
+      locked => locked
     );
 end STRUCTURE;
