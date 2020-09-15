@@ -23,8 +23,8 @@
 module main_fsm(
 input wire pclk,
 input wire rst,
-input wire [7:0]keycode,
-input wire [5:0]key,
+input wire [7:0] keycode,
+input wire [5:0] key,
 output reg splash_visible,
 output reg track_visible,
 output reg player_visible,
@@ -94,7 +94,28 @@ reg lap_timer_start_nxt;
 
 always@(*)
     begin
-    state_nxt = TITLE_SCREEN;
+        lap_timer_start_nxt = 1'b0;
+        title_screen_visible_nxt = 1'b0;
+        track_visible_nxt = 1'b0;
+        player_visible_nxt = 1'b0;
+        control_select_visible_nxt = 1'b0;
+        car_select_visible_nxt = 1'b0;
+        arrow_visible_nxt = 1'b0;
+        eco_car_visible_nxt = 1'b0;
+        rapid_car_visible_nxt = 1'b0;
+        nitro_car_visible_nxt = 1'b0;
+        force_car_visible_nxt = 1'b0;
+        eco_car_xpos_nxt = 0;
+        eco_car_ypos_nxt = 0;
+        force_car_xpos_nxt = 0;
+        force_car_ypos_nxt = 0;
+        nitro_car_xpos_nxt = 0;
+        nitro_car_ypos_nxt = 0;
+        rapid_car_xpos_nxt = 0;
+        rapid_car_ypos_nxt = 0;
+        arrow_xpos_nxt = 0; 
+        arrow_ypos_nxt = 0; 
+        state_nxt = TITLE_SCREEN;
         case(state)
             TITLE_SCREEN:
                 begin
@@ -125,12 +146,12 @@ always@(*)
                     rapid_car_visible_nxt = 1'b1;
                     nitro_car_visible_nxt = 1'b1;
                     force_car_visible_nxt = 1'b1;
-                    eco_car_xpos_nxt = 192;
-                    eco_car_ypos_nxt = 384;
-                    force_car_xpos_nxt = 384;
-                    force_car_ypos_nxt = 384;
-                    nitro_car_xpos_nxt = 576;
-                    nitro_car_ypos_nxt = 384;
+                    eco_car_xpos_nxt = 0;
+                    eco_car_ypos_nxt = 0;
+                    force_car_xpos_nxt = 0;
+                    force_car_ypos_nxt = 0;
+                    nitro_car_xpos_nxt = 0;
+                    nitro_car_ypos_nxt = 0;
                     rapid_car_xpos_nxt = 768;
                     rapid_car_ypos_nxt = 384;
                  if (key == KEY_LEFT) 
@@ -195,7 +216,7 @@ always@(*)
                        rapid_car_visible_nxt = 1'b0;
                        nitro_car_visible_nxt = 1'b0;
                        force_car_visible_nxt = 1'b0;
-                        case(control_arrow)
+                       case(control_arrow)
                              ARROW_ON_KEYBOARD:
                              begin
                                  arrow_xpos_nxt = 256; 
