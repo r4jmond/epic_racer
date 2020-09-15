@@ -46189,6 +46189,11 @@ else if(control_select_visible)
             tile_y_pos = 0;
         end
     endcase
+else
+begin
+    tile_x_pos = 0;
+    tile_y_pos = 0;
+end
 
 
 delay #(11, 2) hcount_delay(

@@ -34,7 +34,7 @@ localparam INIT = 3'b000;
 localparam CAR_SELECT = 3'b001;
 localparam CONTROL_SELECT = 3'b011;
 localparam GAME = 3'b010;
-reg [2:0] state, state_nxt;     
+reg [2:0] state, state_nxt;
 reg splash_visible_nxt, car_select_visible_nxt, control_select_visible_nxt, track_visible_nxt, player_visible_nxt;
  
 always@*
