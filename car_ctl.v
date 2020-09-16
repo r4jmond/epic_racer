@@ -42,7 +42,7 @@ localparam DELAY_MAX = 500000;
 
 
 reg [23:0] delay_min = 160000;
-reg [10:0] xpos_nxt, ypos_nxt;
+reg [10:0] xpos_nxt = 236, ypos_nxt = 70;
 reg [2:0] state, state_nxt;
 reg [23:0] xtimer, xtimer_nxt, ytimer, ytimer_nxt;
 reg [23:0] xdelay, xdelay_nxt, ydelay, ydelay_nxt;
@@ -59,7 +59,7 @@ assign car_y_end = ypos + 43;
 always @(posedge pclk)
 if(rst)
 begin
-    xpos <= 300;
+    xpos <= 236;
     ypos <= 70;
     xtimer <= 0;
     ytimer <= 0;

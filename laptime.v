@@ -3,7 +3,7 @@
 module lap_time(
     input   wire        clk,
     input   wire        rst,
-    input   wire        lap_finished, //button, active high
+    input   wire        lap_finished,
     input   wire [15:0] bin_in, 
     output  reg  [15:0] current_lap_time,
     output  reg  [15:0] last_lap_time,
@@ -39,8 +39,9 @@ begin
         current_lap_time_nxt = bin_in;
         last_lap_time_nxt = last_lap_time;
     end
-
-    if(last_lap_time < best_lap_time) best_lap_time_nxt = last_lap_time;
+    
+    if(best_lap_time == 0) best_lap_time_nxt = last_lap_time;
+    else if(last_lap_time < best_lap_time) best_lap_time_nxt = last_lap_time;
     else best_lap_time_nxt = best_lap_time;
 end
   

@@ -16,7 +16,7 @@ reg state, state_nxt;
 wire [15:0] counter_bin;
 
 clk_divider u_clk_divider_main(
-    .pclk(clk100),
+    .clk100MHz(pclk),
     .rst (rst),
     .clk_div (clk100)
 );

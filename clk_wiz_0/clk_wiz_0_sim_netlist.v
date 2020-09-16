@@ -1,7 +1,7 @@
 // Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2017.3 (win64) Build 2018833 Wed Oct  4 19:58:22 MDT 2017
-// Date        : Mon Sep 14 13:24:26 2020
+// Date        : Wed Sep 16 16:30:52 2020
 // Host        : DESKTOP-9K2AFQC running 64-bit major release  (build 9200)
 // Command     : write_verilog -force -mode funcsim
 //               C:/Users/Rejmi/Documents/Vivado/uec2_projekt/src/clk_wiz_0/clk_wiz_0_sim_netlist.v
@@ -16,34 +16,28 @@
 module clk_wiz_0
    (clk_65M,
     clk_100M,
-    locked,
     clk);
   output clk_65M;
   output clk_100M;
-  output locked;
   input clk;
 
   (* IBUF_LOW_PWR *) wire clk;
   wire clk_100M;
   wire clk_65M;
-  wire locked;
 
   clk_wiz_0_clk_wiz_0_clk_wiz inst
        (.clk(clk),
         .clk_100M(clk_100M),
-        .clk_65M(clk_65M),
-        .locked(locked));
+        .clk_65M(clk_65M));
 endmodule
 
 (* ORIG_REF_NAME = "clk_wiz_0_clk_wiz" *) 
 module clk_wiz_0_clk_wiz_0_clk_wiz
    (clk_65M,
     clk_100M,
-    locked,
     clk);
   output clk_65M;
   output clk_100M;
-  output locked;
   input clk;
 
   wire clk;
@@ -54,7 +48,6 @@ module clk_wiz_0_clk_wiz_0_clk_wiz
   wire clk_clk_wiz_0;
   wire clkfbout_buf_clk_wiz_0;
   wire clkfbout_clk_wiz_0;
-  wire locked;
   wire NLW_mmcm_adv_inst_CLKFBOUTB_UNCONNECTED;
   wire NLW_mmcm_adv_inst_CLKFBSTOPPED_UNCONNECTED;
   wire NLW_mmcm_adv_inst_CLKINSTOPPED_UNCONNECTED;
@@ -68,6 +61,7 @@ module clk_wiz_0_clk_wiz_0_clk_wiz
   wire NLW_mmcm_adv_inst_CLKOUT5_UNCONNECTED;
   wire NLW_mmcm_adv_inst_CLKOUT6_UNCONNECTED;
   wire NLW_mmcm_adv_inst_DRDY_UNCONNECTED;
+  wire NLW_mmcm_adv_inst_LOCKED_UNCONNECTED;
   wire NLW_mmcm_adv_inst_PSDONE_UNCONNECTED;
   wire [15:0]NLW_mmcm_adv_inst_DO_UNCONNECTED;
 
@@ -169,7 +163,7 @@ module clk_wiz_0_clk_wiz_0_clk_wiz
         .DO(NLW_mmcm_adv_inst_DO_UNCONNECTED[15:0]),
         .DRDY(NLW_mmcm_adv_inst_DRDY_UNCONNECTED),
         .DWE(1'b0),
-        .LOCKED(locked),
+        .LOCKED(NLW_mmcm_adv_inst_LOCKED_UNCONNECTED),
         .PSCLK(1'b0),
         .PSDONE(NLW_mmcm_adv_inst_PSDONE_UNCONNECTED),
         .PSEN(1'b0),

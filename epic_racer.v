@@ -74,9 +74,9 @@ xga_timing my_timing (
     .frame_ended(frame_ended)
 );
 
-wire [10:0] xpos, ypos;
 wire splash_visible, car_select_visible, control_select_visible;
 wire track_visible, player_visible;
+wire lap_timer_start;
 
 main_fsm epic_racer_fsm (
     .pclk(clk65M),
@@ -158,19 +158,25 @@ image_rom #(256, 240, 16, "./images/track.data") track_tiles(
 );
 
 wire [1:0] car_rotation;
-wire [10:0] vcount_cr, hcount_cr;           
-wire vsync_cr, vblnk_cr, hsync_cr, hblnk_cr;
-wire [11:0] rgb_cr;
+wire [10:0] vcount_crc, hcount_crc;           
+wire vsync_crc, vblnk_crc, hsync_crc, hblnk_crc;
+wire [11:0] rgb_crc;
 wire [11:0] car_data;
 wire [11:0] car_adress;
+wire [10:0] car_xpos, car_ypos;
+wire [10:0] car_x_start, car_x_end, car_y_start, car_y_end;
 
 car_ctl my_car_ctl(
     .pclk(clk65M),
     .rst(rst),
     .key({ btnR_D, btnL_D, btnD_D, btnU_D }),
-    .xpos(xpos),
-    .ypos(ypos),
-    .move_dir(car_rotation)
+    .xpos(car_xpos),
+    .ypos(car_ypos),
+    .move_dir(car_rotation),
+    .car_x_start(car_x_start),
+    .car_x_end(car_x_end),
+    .car_y_start(car_y_start),
+    .car_y_end(car_y_end)
 );
 
 draw_img #(64, 64, 12) draw_car_nitro(
@@ -182,19 +188,19 @@ draw_img #(64, 64, 12) draw_car_nitro(
     .hblnk_in(hblnk_tc),
     .pclk(clk65M),
     .rst(rst),
-    .xpos(xpos),
-    .ypos(ypos),
+    .xpos(car_xpos),
+    .ypos(car_ypos),
     .visible(player_visible),
     .rgb_in(rgb_tc),
     .rgb_pixel(car_data),
     .pixel_addr(car_adress),
-    .rgb_out(rgb_cr),
-    .vcount_out(vcount_cr),
-    .hcount_out(hcount_cr),
-    .vsync_out(vsync_cr),
-    .hsync_out(hsync_cr),
-    .vblnk_out(vblnk_cr),
-    .hblnk_out(hblnk_cr),
+    .rgb_out(rgb_crc),
+    .vcount_out(vcount_crc),
+    .hcount_out(hcount_crc),
+    .vsync_out(vsync_crc),
+    .hsync_out(hsync_crc),
+    .vblnk_out(vblnk_crc),
+    .hblnk_out(hblnk_crc),
     .rotation(car_rotation)
 );
 
@@ -204,36 +210,67 @@ image_rom #(64, 64, 12, "./images/car_nitro.data") car_nitro_rom(
     .rgb_out(car_data)
 );
 
+wire lap_finished, checkpoints_passed;
+wire [15:0] current_lap_time, last_lap_time, best_lap_time;
+
+checkpoints my_checkpoints(
+    .pclk(clk65M),
+    .rst(rst),
+    .car_x_start(car_x_start),
+    .car_x_end(car_x_end),
+    .car_y_start(car_y_start),
+    .car_y_end(car_y_end),
+    .lap_finished(lap_finished),
+    .checkpoints_passed(checkpoints_passed)
+);
+
+lap_timer my_lap_timer(
+    .pclk(clk65M),
+    .rst(rst),
+    .lap_finished(lap_finished),
+    .start(track_visible),
+    //.start(lap_timer_start),
+    .current_lap_time(current_lap_time),
+    .last_lap_time(last_lap_time),
+    .best_lap_time(best_lap_time)
+);
+
 wire [10:0] current_lap_time_char_addr;
 wire [7:0] current_lap_time_char_pixels;
 wire [15:0] current_lap_time_char_xy;
 
-draw_rect_char #(128, 32, 28, 1, 12'h333) draw_current_lap_time (
-    .hcount_in(hcount_cr),
-    .hsync_in(hsync_cr),
-    .hblnk_in(hblnk_cr),
-    .vcount_in(vcount_cr),
-    .vsync_in(vsync_cr),
-    .vblnk_in(vblnk_cr),
-    .rgb_in(rgb_cr),
+wire [10:0] vcount_rcrl, hcount_rcrl;           
+wire vsync_rcrl, vblnk_rcrl, hsync_rcrl, hblnk_rcrl;
+wire [11:0] rgb_rcrl;
+
+draw_rect_char #(128, 32, 25, 1, 12'h333) draw_current_lap_time (
+    .hcount_in(hcount_crc),
+    .hsync_in(hsync_crc),
+    .hblnk_in(hblnk_crc),
+    .vcount_in(vcount_crc),
+    .vsync_in(vsync_crc),
+    .vblnk_in(vblnk_crc),
+    .rgb_in(rgb_crc),
     .char_pixels(current_lap_time_char_pixels),
     .pclk(clk65M),
     .rst(rst),
-    //.hsync_out(hsync2),
-   // .hcount_out(hcount2),
-    //.hblnk_out(hblnk2),
-    //.vcount_out(vcount2),
-    //.vsync_out(vsync2),
-   // .vblnk_out(vblnk2),
-    .rgb_out({r, g, b}),
-    .vsync_out(vs),
-    .hsync_out(hs),
+    .hsync_out(hsync_rcrl),
+    .hcount_out(hcount_rcrl),
+    .hblnk_out(hblnk_rcrl),
+    .vcount_out(vcount_rcrl),
+    .vsync_out(vsync_rcrl),
+    .vblnk_out(vblnk_rcrl),
+    .rgb_out(rgb_rcrl),
+    //.rgb_out({r, g, b}),
+   // .vsync_out(vs),
+   // .hsync_out(hs),
     .char_xy(current_lap_time_char_xy),
     .char_line(current_lap_time_char_addr[3:0])
 );
 
-current_lap_time_char_rom my_current_lap_time_char_rom(
+current_lap_time_char_rom current_lap_time_char_rom(
     .char_xy(current_lap_time_char_xy),
+    .current_lap_time(current_lap_time),
     .char_code(current_lap_time_char_addr[10:4])
 );
 
@@ -242,6 +279,99 @@ font_rom current_lap_time_font_rom (
     .addr(current_lap_time_char_addr),
     .char_line_pixels(current_lap_time_char_pixels)
 );
+
+wire [10:0] last_lap_time_char_addr;
+wire [7:0] last_lap_time_char_pixels;
+wire [15:0] last_lap_time_char_xy;
+
+wire [10:0] vcount_rlrb, hcount_rlrb;
+wire vsync_rlrb, vblnk_rlrb, hsync_rlrb, hblnk_rlrb;
+wire [11:0] rgb_rlrb;
+
+draw_rect_char #(500, 32, 22, 1, 12'h333) draw_last_lap_time (
+    .hcount_in(hcount_rcrl),
+    .vcount_in(vcount_rcrl),
+    .hsync_in(hsync_rcrl),
+    .hblnk_in(hblnk_rcrl),
+    .vsync_in(vsync_rcrl),
+    .vblnk_in(vblnk_rcrl),
+    .rgb_in(rgb_rcrl),
+    .char_pixels(last_lap_time_char_pixels),
+    .pclk(clk65M),
+    .rst(rst),
+    .hcount_out(hcount_rlrb),
+    .vcount_out(vcount_rlrb),
+    .hsync_out(hsync_rlrb),
+    .vsync_out(vsync_rlrb),
+    .hblnk_out(hblnk_rlrb),
+    .vblnk_out(vblnk_rlrb),
+    .rgb_out(rgb_rlrb),
+    //.rgb_out({r, g, b}),
+   // .vsync_out(vs),
+   // .hsync_out(hs),
+    .char_xy(last_lap_time_char_xy),
+    .char_line(last_lap_time_char_addr[3:0])
+);
+
+last_lap_time_char_rom last_lap_time_char_rom(
+    .char_xy(last_lap_time_char_xy),
+    .last_lap_time(last_lap_time),
+    .char_code(last_lap_time_char_addr[10:4])
+);
+
+font_rom last_lap_time_font_rom (
+    .clk(clk65M),
+    .addr(last_lap_time_char_addr),
+    .char_line_pixels(last_lap_time_char_pixels)
+);
+
+
+wire [10:0] best_lap_time_char_addr;
+wire [7:0] best_lap_time_char_pixels;
+wire [15:0] best_lap_time_char_xy;
+
+//wire [10:0] vcount_rb, hcount_rlrb;           
+//wire vsync_rlrb, vblnk_rlrb, hsync_rlrb, hblnk_rlrb;
+//wire [11:0] rgb_rlrb;
+
+draw_rect_char #(680, 32, 22, 1, 12'h333) draw_best_lap_time (
+    .hcount_in(hcount_rlrb),
+    .vcount_in(vcount_rlrb),
+    .hsync_in(hsync_rlrb),
+    .hblnk_in(hblnk_rlrb),
+    .vsync_in(vsync_rlrb),
+    .vblnk_in(vblnk_rlrb),
+    .rgb_in(rgb_rlrb),
+    .char_pixels(best_lap_time_char_pixels),
+    .pclk(clk65M),
+    .rst(rst),
+    /*.hcount_out(hcount_rlrb),
+    .vcount_out(vcount_rlrb),
+    .hsync_out(hsync_rlrb),
+    .vsync_out(vsync_rlrb),
+    .hblnk_out(hblnk_rlrb),
+    .vblnk_out(vblnk_rlrb),
+    .rgb_out(rgb_rlrb),*/
+    .rgb_out({r, g, b}),
+    .vsync_out(vs),
+    .hsync_out(hs),
+    .char_xy(best_lap_time_char_xy),
+    .char_line(best_lap_time_char_addr[3:0])
+);
+
+best_lap_time_char_rom best_lap_time_char_rom(
+    .char_xy(best_lap_time_char_xy),
+    .best_lap_time(lap_finished),
+    //.best_lap_time(best_lap_time),
+    .char_code(best_lap_time_char_addr[10:4])
+);
+
+font_rom best_lap_time_font_rom (
+    .clk(clk65M),
+    .addr(best_lap_time_char_addr),
+    .char_line_pixels(best_lap_time_char_pixels)
+);
+
 
 /*
 keyboard my_keyboard(

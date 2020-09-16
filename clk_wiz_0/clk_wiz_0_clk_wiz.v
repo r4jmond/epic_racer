@@ -72,8 +72,6 @@ module clk_wiz_0_clk_wiz
   // Clock out ports
   output        clk_65M,
   output        clk_100M,
-  // Status and control signals
-  output        locked,
   input         clk
  );
   // Input buffering
@@ -181,7 +179,6 @@ wire clk_in2_clk_wiz_0;
     .PWRDWN              (1'b0),
     .RST                 (1'b0));
 
-  assign locked = locked_int;
 // Clock Monitor clock assigning
 //--------------------------------------
  // Output buffering

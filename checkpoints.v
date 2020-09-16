@@ -32,6 +32,9 @@ end
 
 always@*
 begin
+    checkpoints_passed_nxt = checkpoints_passed;
+    lap_finished_nxt = lap_finished;
+    checkpoints_nxt = checkpoints;
     
     if(checkpoints == 6'b111111) checkpoints_passed_nxt = 1;
     else checkpoints_passed_nxt = 0;
