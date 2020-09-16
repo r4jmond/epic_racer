@@ -39,7 +39,7 @@ begin
     if(checkpoints == 6'b111111) checkpoints_passed_nxt = 1;
     else checkpoints_passed_nxt = 0;
     
-    if(car_x_start >= 506 && car_x_end <= 530 && car_y_end <= 160) 
+    if(car_x_start >= 506 && car_x_end <= 528 && car_y_end <= 160) 
     begin
         lap_finished_nxt = 1;
         checkpoints_nxt = 6'b0;

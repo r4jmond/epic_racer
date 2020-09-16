@@ -1,25 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 14.04.2020 12:36:06
-// Design Name: 
-// Module Name: draw_rect_char
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
-
 
 module draw_rect_char(
     input wire [10:0] hcount_in,
@@ -31,6 +10,7 @@ module draw_rect_char(
     input wire [7:0] char_pixels,
     input wire pclk,
     input wire rst,
+    input wire visible,
     input wire [11:0] rgb_in,
     output reg [10:0] hcount_out,
     output reg hsync_out,
@@ -83,7 +63,7 @@ always @*
 begin
     if(hcount_in > XPOS && hcount_in <= (XPOS + RECT_WIDTH) && vcount_in > YPOS && vcount_in <= (YPOS + RECT_LENGTH))
     begin
-        if(char_pixels[8 - ((hcount_in - XPOS) & 3'b111)])
+        if((char_pixels[8 - ((hcount_in - XPOS) & 3'b111)]) && visible)
             rgb_out_nxt = FONT_COLOR;
         else
             rgb_out_nxt = rgb_in;

@@ -166,6 +166,8 @@ wire [11:0] car_adress;
 wire [10:0] car_xpos, car_ypos;
 wire [10:0] car_x_start, car_x_end, car_y_start, car_y_end;
 
+wire lap_finished, checkpoints_passed;
+
 car_ctl my_car_ctl(
     .pclk(clk65M),
     .rst(rst),
@@ -177,6 +179,8 @@ car_ctl my_car_ctl(
     .car_x_end(car_x_end),
     .car_y_start(car_y_start),
     .car_y_end(car_y_end)
+    //.lap_finished(lap_finished),
+    //.checkpoints_passed(checkpoints_passed)
 );
 
 draw_img #(64, 64, 12) draw_car_nitro(
@@ -210,7 +214,7 @@ image_rom #(64, 64, 12, "./images/car_nitro.data") car_nitro_rom(
     .rgb_out(car_data)
 );
 
-wire lap_finished, checkpoints_passed;
+
 wire [15:0] current_lap_time, last_lap_time, best_lap_time;
 
 checkpoints my_checkpoints(
@@ -225,7 +229,8 @@ checkpoints my_checkpoints(
 );
 
 lap_timer my_lap_timer(
-    .pclk(clk65M),
+    .clk65M(clk65M),
+    .clk100M(clk100M),
     .rst(rst),
     .lap_finished(lap_finished),
     .start(track_visible),
@@ -254,6 +259,7 @@ draw_rect_char #(128, 32, 25, 1, 12'h333) draw_current_lap_time (
     .char_pixels(current_lap_time_char_pixels),
     .pclk(clk65M),
     .rst(rst),
+    .visible(track_visible),
     .hsync_out(hsync_rcrl),
     .hcount_out(hcount_rcrl),
     .hblnk_out(hblnk_rcrl),
@@ -261,9 +267,6 @@ draw_rect_char #(128, 32, 25, 1, 12'h333) draw_current_lap_time (
     .vsync_out(vsync_rcrl),
     .vblnk_out(vblnk_rcrl),
     .rgb_out(rgb_rcrl),
-    //.rgb_out({r, g, b}),
-   // .vsync_out(vs),
-   // .hsync_out(hs),
     .char_xy(current_lap_time_char_xy),
     .char_line(current_lap_time_char_addr[3:0])
 );
@@ -288,7 +291,7 @@ wire [10:0] vcount_rlrb, hcount_rlrb;
 wire vsync_rlrb, vblnk_rlrb, hsync_rlrb, hblnk_rlrb;
 wire [11:0] rgb_rlrb;
 
-draw_rect_char #(500, 32, 22, 1, 12'h333) draw_last_lap_time (
+draw_rect_char #(416, 32, 22, 1, 12'h333) draw_last_lap_time (
     .hcount_in(hcount_rcrl),
     .vcount_in(vcount_rcrl),
     .hsync_in(hsync_rcrl),
@@ -299,6 +302,7 @@ draw_rect_char #(500, 32, 22, 1, 12'h333) draw_last_lap_time (
     .char_pixels(last_lap_time_char_pixels),
     .pclk(clk65M),
     .rst(rst),
+    .visible(track_visible),
     .hcount_out(hcount_rlrb),
     .vcount_out(vcount_rlrb),
     .hsync_out(hsync_rlrb),
@@ -306,9 +310,6 @@ draw_rect_char #(500, 32, 22, 1, 12'h333) draw_last_lap_time (
     .hblnk_out(hblnk_rlrb),
     .vblnk_out(vblnk_rlrb),
     .rgb_out(rgb_rlrb),
-    //.rgb_out({r, g, b}),
-   // .vsync_out(vs),
-   // .hsync_out(hs),
     .char_xy(last_lap_time_char_xy),
     .char_line(last_lap_time_char_addr[3:0])
 );
@@ -345,6 +346,7 @@ draw_rect_char #(680, 32, 22, 1, 12'h333) draw_best_lap_time (
     .char_pixels(best_lap_time_char_pixels),
     .pclk(clk65M),
     .rst(rst),
+    .visible(track_visible),
     /*.hcount_out(hcount_rlrb),
     .vcount_out(vcount_rlrb),
     .hsync_out(hsync_rlrb),
@@ -361,8 +363,7 @@ draw_rect_char #(680, 32, 22, 1, 12'h333) draw_best_lap_time (
 
 best_lap_time_char_rom best_lap_time_char_rom(
     .char_xy(best_lap_time_char_xy),
-    .best_lap_time(lap_finished),
-    //.best_lap_time(best_lap_time),
+    .best_lap_time(best_lap_time),
     .char_code(best_lap_time_char_addr[10:4])
 );
 

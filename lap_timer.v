@@ -1,7 +1,8 @@
 `timescale 1ns / 1ps
 
 module lap_timer(
-    input wire pclk,
+    input wire clk100M,
+    input wire clk65M,
     input wire rst,
     input wire lap_finished,
     input wire start,
@@ -16,7 +17,7 @@ reg state, state_nxt;
 wire [15:0] counter_bin;
 
 clk_divider u_clk_divider_main(
-    .clk100MHz(pclk),
+    .clk100MHz(clk100M),
     .rst (rst),
     .clk_div (clk100)
 );
@@ -31,7 +32,7 @@ timer u_timer(
 );
 
 lap_time u_lap_time(
-    .clk(clk100),
+    .clk(clk65M),
     .rst(rst),
     .lap_finished(lap_finished),
     .bin_in(counter_bin),
