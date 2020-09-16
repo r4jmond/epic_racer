@@ -21,34 +21,34 @@
 
 
 module main_fsm(
-input wire pclk,
-input wire rst,
-input wire [7:0] keycode,
-input wire [5:0] key,
-output reg splash_visible,
-output reg track_visible,
-output reg player_visible,
-output reg [1:0] title_screen_visible,
-output reg [1:0] car_select_visible,
-output reg [1:0] control_select_visible,
-output reg [1:0] arrow_visible,
-output reg [1:0] eco_car_visible,
-output reg [1:0] force_car_visible,
-output reg [1:0] nitro_car_visible,
-output reg [1:0] rapid_car_visible,
-output reg [1:0] control,
-output reg [3:0] car,
-output reg eco_car_xpos,
-output reg eco_car_ypos,
-output reg force_car_xpos,
-output reg force_car_ypos,
-output reg nitro_car_xpos,
-output reg nitro_car_ypos,
-output reg rapid_car_xpos,
-output reg rapid_car_ypos,
-output reg arrow_xpos,
-output reg arrow_ypos,
-output reg lap_timer_start
+    input wire pclk,
+    input wire rst,
+    input wire [7:0] keycode,
+    input wire [5:0] key,
+    output reg splash_visible,
+    output reg track_visible,
+    output reg player_visible,
+    output reg [1:0] title_screen_visible,
+    output reg [1:0] car_select_visible,
+    output reg [1:0] control_select_visible,
+    output reg [1:0] arrow_visible,
+    output reg [1:0] eco_car_visible,
+    output reg [1:0] force_car_visible,
+    output reg [1:0] nitro_car_visible,
+    output reg [1:0] rapid_car_visible,
+    output reg [1:0] control,
+    output reg [3:0] car,
+    output reg eco_car_xpos,
+    output reg eco_car_ypos,
+    output reg force_car_xpos,
+    output reg force_car_ypos,
+    output reg nitro_car_xpos,
+    output reg nitro_car_ypos,
+    output reg rapid_car_xpos,
+    output reg rapid_car_ypos,
+    output reg arrow_xpos,
+    output reg arrow_ypos,
+    output reg lap_timer_start
     );
     
 localparam KEY_UP = 6'b000001;
@@ -263,7 +263,7 @@ always@(*)
  always @(posedge pclk)
       if(rst)
       begin
-          state <= 0; 
+          state <= TITLE_SCREEN; 
           lap_timer_start <= 0;
           car_select_visible <= 0;
           title_screen_visible <=0;
@@ -318,5 +318,5 @@ always@(*)
           rapid_car_ypos <= rapid_car_ypos_nxt;
       end
       
-      endmodule
+endmodule
 
