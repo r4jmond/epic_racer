@@ -25,48 +25,36 @@ module keyboard(
    input wire ps2_clk,	//keyboard clock and data signals
    input wire ps2_data,
    input wire rst,
-   output reg [4:0] key
+   output reg [5:0] key
    	);
  
-   reg        clk50M=0;
-   wire [7:0] keycode;
-   
-    always @(posedge(clk))begin
+  reg        clk50M=0;
+  wire [7:0] keycode;
+  
+ always @(posedge(clk))
+    begin
      clk50M<=~clk50M;
-     end
+    end
+
 
 localparam ARROW_UP = 8'h75;	//codes for arrows
 localparam ARROW_DOWN = 8'h72;
 localparam ARROW_LEFT = 8'h6B;
 localparam ARROW_RIGHT = 8'h74;
-localparam SPACE = 8'h29;
+localparam ENTER = 8'h5A;
 localparam ESC = 8'h76;
 
-/*	
-reg [15:0] kcode, kcode_nxt;		
-reg TRIGGER, TRIGGER_nxt = 0;
-reg [1:0] key_nxt;
-wire [15:0] keycode;
-wire [15:0] keycodev=0;
-wire flag;
-reg delay_FLAG, delay_FLAG_nxt = 1'b0;
-
-localparam SPACE_keyboard = 6'b010000;
-localparam ESC_keyboard = 6'b100000;
 
 
-wire clk50M;
-*/
+localparam KEY_UP = 6'b000001;
+localparam KEY_DOWN = 6'b000010;
+localparam KEY_LEFT = 6'b000100;
+localparam KEY_RIGHT = 6'b001000;
+localparam KEY_ENTER = 6'b010000;
+localparam KEY_ESC = 6'b100000;
 
-reg [4:0] key_nxt;
 
-localparam KEY_UP = 4'b0001;
-localparam KEY_DOWN = 4'b0010;
-localparam KEY_LEFT = 4'b0100;
-localparam KEY_RIGHT = 4'b1000;
-
-localparam NULL = 4'b0;
-
+localparam NULL = 6'b000000;
 
 PS2Receiver uut (
 	.clk(clk50M),
@@ -75,81 +63,40 @@ PS2Receiver uut (
 	.keycode(keycode)
 
 );
-/*
- always@(*)
-    if (keycode[7:0] == 8'hf0) 
-    begin
-      TRIGGER_nxt = 1'b0;
-      kcode_nxt = kcode;
-    end 
-    
-	else if (keycode[15:8] == 8'hf0)
-	begin
-      TRIGGER_nxt = 1'b0;
-      kcode_nxt = (flag == 1'b1 && (keycode != kcode) ) ? keycode : kcode;
-    end
-	else 
-	begin
-      TRIGGER_nxt = (flag == 1'b1 && (keycode[7:0] != kcode[7:0] || kcode[15:8] == 8'hf0) ) ? 1'b1 : 1'b0;
-      kcode_nxt = (flag == 1'b1 && (keycode[7:0] != kcode[7:0] || kcode[15:8] == 8'hf0) ) ? keycode : kcode;
-    end
-    
-	always@(posedge clk)
-	begin
-     //TRIGGER <= TRIGGER_nxt;
-     key <= key_nxt;
-    end
 
-always@(*) 
-  if( delay_FLAG != 1'b0 ) 
-  begin
-    key_nxt = key;
-    delay_FLAG_nxt = 0;
-  end 
-  else if( TRIGGER == 1'b1 ) 
-  */
-  always @(*)
-  begin
-    case( keycode[7:0] )
-      ARROW_LEFT: 
-	   begin
-         key = KEY_LEFT;
-         
-       end
-      ARROW_RIGHT: 
-	    begin
-          key = KEY_RIGHT;
-          
-         end
-	  ARROW_UP : 
-	    begin
-          key= KEY_UP;
-          
-       end
-	  ARROW_DOWN : 
-	    begin
-          key = KEY_DOWN;
-          
-        end
-        /*
-	  SPACE : 
-	    begin
-          key = SPACE_k;
-          
-        end
-	  ESC : 
-	    begin
-          key = ESC_k;
-          
-        end
-        */
-     default: 
-	    begin
-         key = NULL;
-        
-        end
-     endcase
-end
+always @(*)
+	begin
+		case( keycode[7:0] )
+			ARROW_LEFT: 
+				begin
+				key = KEY_LEFT;     
+				end
+			ARROW_RIGHT: 
+				begin
+				key = KEY_RIGHT;        
+				end
+			ARROW_UP : 
+				begin
+				key= KEY_UP;        
+				end
+			ARROW_DOWN : 
+				begin
+				key = KEY_DOWN;
+				end
+		    ENTER:
+		       begin
+		       key = KEY_ENTER;
+		       end
+		    ESC:
+		       begin
+		       key = KEY_ESC;
+		       end
+			default: 
+				begin
+				key = NULL;
+				end
+		endcase
+	end
 
-          
+
 endmodule
