@@ -100,6 +100,7 @@ draw_menu #(16, 16, 16) draw_menu(
     .hsync_in(hsync),
     .vblnk_in(vblnk),
     .hblnk_in(hblnk),
+    .rgb_in(0),
     .pclk(clk65M),
     .rst(rst),
     .splash_visible(splash_visible),
@@ -213,7 +214,7 @@ image_rom #(64, 64, 12, "./images/car_nitro.data") car_nitro_rom(
 
 
 wire [15:0] current_lap_time, last_lap_time, best_lap_time;
-//wire [15:0] current_lap_time_delayed, last_lap_time_delayed, best_lap_time_delayed;
+wire max_lap_time_exceeded;
 
 checkpoints my_checkpoints(
     .pclk(clk65M),
@@ -230,7 +231,10 @@ lap_timer my_lap_timer(
     .pclk(clk65M),
     .rst(rst),
     .start(track_visible),
+    .stop(0),
     .lap_finished(lap_finished),
+    .checkpoints_passed(checkpoints_passed),
+    .max_time_exceeded(max_lap_time_exceeded),
     .current_lap_time(current_lap_time),
     .last_lap_time(last_lap_time),
     .best_lap_time(best_lap_time)
@@ -244,7 +248,7 @@ wire [10:0] vcount_rcrl, hcount_rcrl;
 wire vsync_rcrl, vblnk_rcrl, hsync_rcrl, hblnk_rcrl;
 wire [11:0] rgb_rcrl;
 
-draw_rect_char #(128, 32, 25, 1, 12'h333) draw_current_lap_time (
+draw_rect_char #(144, 32, 23, 1, 12'h333) draw_current_lap_time (
     .hcount_in(hcount_crc),
     .hsync_in(hsync_crc),
     .hblnk_in(hblnk_crc),
@@ -290,7 +294,7 @@ wire [10:0] vcount_rlrb, hcount_rlrb;
 wire vsync_rlrb, vblnk_rlrb, hsync_rlrb, hblnk_rlrb;
 wire [11:0] rgb_rlrb;
 
-draw_rect_char #(416, 32, 22, 1, 12'h333) draw_last_lap_time (
+draw_rect_char #(416, 32, 20, 1, 12'h333) draw_last_lap_time (
     .hcount_in(hcount_rcrl),
     .vcount_in(vcount_rcrl),
     .hsync_in(hsync_rcrl),
@@ -329,7 +333,7 @@ wire [10:0] best_lap_time_char_addr;
 wire [7:0] best_lap_time_char_pixels;
 wire [15:0] best_lap_time_char_xy;
 
-draw_rect_char #(680, 32, 22, 1, 12'h333) draw_best_lap_time (
+draw_rect_char #(664, 32, 20, 1, 12'h333) draw_best_lap_time (
     .hcount_in(hcount_rlrb),
     .vcount_in(vcount_rlrb),
     .hsync_in(hsync_rlrb),

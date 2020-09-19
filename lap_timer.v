@@ -3,9 +3,11 @@
 module lap_timer(
     input wire pclk,
     input wire rst,
-    input wire lap_finished,
     input wire start,
     input wire stop,
+    input wire lap_finished,
+    input wire checkpoints_passed,
+    output reg max_time_exceeded,
     output reg [15:0] current_lap_time,
     output reg [15:0] last_lap_time,
     output reg [15:0] best_lap_time
@@ -14,11 +16,10 @@ module lap_timer(
 reg [15:0] current_lap_time_nxt, last_lap_time_nxt, best_lap_time_nxt;
 reg [9:0] counter1, counter1_nxt;
 reg [9:0] counter1k, counter1k_nxt;
-
+reg max_time_exceeded_nxt;
 reg [1:0] state, state_nxt;
 
 localparam MAX_LAP_TIME = 4000; //1 = 0.01s
-reg max_time_exceeded, max_time_exceeded_nxt;
 
 localparam RESET = 2'b00;
 localparam IDLE = 2'b01;
@@ -60,6 +61,7 @@ begin
         last_lap_time_nxt = 0;
         best_lap_time_nxt = 0;
         max_time_exceeded_nxt = 0;
+        
         if(start) state_nxt = COUNT;
         else state_nxt = IDLE;
     end
@@ -71,6 +73,7 @@ begin
         last_lap_time_nxt = last_lap_time;
         best_lap_time_nxt = best_lap_time;
         max_time_exceeded_nxt = max_time_exceeded;
+        
         if(start) state_nxt = COUNT;
         else state_nxt = IDLE;
     end
@@ -82,6 +85,7 @@ begin
         counter1k_nxt = counter1k;
         max_time_exceeded_nxt = max_time_exceeded;
         current_lap_time_nxt = current_lap_time;
+        
         if(counter1 < 1000) counter1_nxt = counter1 + 1;
         else 
         begin
@@ -98,20 +102,24 @@ begin
                 end
             end
         end
+        
         if(stop) state_nxt = IDLE;
         else if(lap_finished) state_nxt = LAP_FINISHED;
         else state_nxt = COUNT;
     end
     LAP_FINISHED:
     begin
-        if((current_lap_time > 100) && (max_time_exceeded == 0)) last_lap_time_nxt = current_lap_time;
-        else last_lap_time_nxt = last_lap_time;
-        if((best_lap_time == 0) && (max_time_exceeded == 0) && (current_lap_time > 100)) best_lap_time_nxt = current_lap_time;
-        else if((current_lap_time < best_lap_time) && (max_time_exceeded == 0) && (current_lap_time > 100)) best_lap_time_nxt = current_lap_time;
-        else best_lap_time_nxt = best_lap_time;
         current_lap_time_nxt = 0;
         counter1_nxt = 0;
         counter1k_nxt = 0;
+        max_time_exceeded_nxt = 0;
+        
+        if((current_lap_time > 100) && (max_time_exceeded == 0) && (checkpoints_passed)) last_lap_time_nxt = current_lap_time;
+        else last_lap_time_nxt = last_lap_time;
+        if((best_lap_time == 0) && (max_time_exceeded == 0) && (current_lap_time > 100) && (checkpoints_passed)) best_lap_time_nxt = current_lap_time;
+        else if((current_lap_time < best_lap_time) && (max_time_exceeded == 0) && (current_lap_time > 100) && (checkpoints_passed)) best_lap_time_nxt = current_lap_time;
+        else best_lap_time_nxt = best_lap_time;
+        
         if(stop) state_nxt = IDLE;
         else state_nxt = COUNT;
     end
@@ -120,6 +128,7 @@ begin
         current_lap_time_nxt = current_lap_time;
         last_lap_time_nxt = last_lap_time;
         best_lap_time_nxt = best_lap_time;
+        max_time_exceeded_nxt = 0;
         state_nxt = state;
         counter1_nxt = counter1;
         counter1k_nxt = counter1k;

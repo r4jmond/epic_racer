@@ -118,13 +118,11 @@ begin
         16'h0c00: char_code = 7'h45; //E
         16'h0d00: char_code = 7'h3a; //:
         16'h0e00: char_code = 7'h00; //
-        16'h0f00: char_code = char_code_4;
-        16'h1000: char_code = 7'h3a; //:
-        16'h1100: char_code = char_code_3;
-        16'h1200: char_code = char_code_2;
-        16'h1300: char_code = 7'h3a; //:
-        16'h1400: char_code = char_code_1;
-        16'h1500: char_code = char_code_0;
+        16'h0f00: char_code = char_code_3;
+        16'h1000: char_code = char_code_2;
+        16'h1100: char_code = 7'h3a; //:
+        16'h1200: char_code = char_code_1;
+        16'h1300: char_code = char_code_0;
         default: char_code = 0;
     endcase   
 end                       
