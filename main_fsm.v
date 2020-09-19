@@ -144,9 +144,7 @@ always@(*)
                     if(btnU) 
                         state_nxt = CAR_SELECT;
                     else 
-                        state_nxt = TITLE_SCREEN;   
-                         
-
+                        state_nxt = TITLE_SCREEN;
 
             end
             CAR_SELECT:

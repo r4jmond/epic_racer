@@ -72,9 +72,6 @@ module clk_wiz_0_clk_wiz
   // Clock out ports
   output        clk_65M,
   output        clk_100M,
-  // Status and control signals
-  input         reset,
-  output        locked,
   input         clk
  );
   // Input buffering
@@ -121,7 +118,12 @@ wire clk_in2_clk_wiz_0;
   wire        clkout6_unused;
   wire        clkfbstopped_unused;
   wire        clkinstopped_unused;
-  wire        reset_high;
+  (* KEEP = "TRUE" *) 
+  (* ASYNC_REG = "TRUE" *)
+  reg  [7 :0] seq_reg1 = 0;
+  (* KEEP = "TRUE" *) 
+  (* ASYNC_REG = "TRUE" *)
+  reg  [7 :0] seq_reg2 = 0;
 
   MMCME2_ADV
   #(.BANDWIDTH            ("OPTIMIZED"),
@@ -181,10 +183,8 @@ wire clk_in2_clk_wiz_0;
     .CLKINSTOPPED        (clkinstopped_unused),
     .CLKFBSTOPPED        (clkfbstopped_unused),
     .PWRDWN              (1'b0),
-    .RST                 (reset_high));
-  assign reset_high = reset; 
+    .RST                 (1'b0));
 
-  assign locked = locked_int;
 // Clock Monitor clock assigning
 //--------------------------------------
  // Output buffering
@@ -199,14 +199,32 @@ wire clk_in2_clk_wiz_0;
 
 
 
-  BUFG clkout1_buf
+
+  BUFGCE clkout1_buf
    (.O   (clk_65M),
+    .CE  (seq_reg1[7]),
     .I   (clk_65M_clk_wiz_0));
 
+  BUFH clkout1_buf_en
+   (.O   (clk_65M_clk_wiz_0_en_clk),
+    .I   (clk_65M_clk_wiz_0));
+  always @(posedge clk_65M_clk_wiz_0_en_clk)
+        seq_reg1 <= {seq_reg1[6:0],locked_int};
 
-  BUFG clkout2_buf
+
+  BUFGCE clkout2_buf
    (.O   (clk_100M),
+    .CE  (seq_reg2[7]),
     .I   (clk_100M_clk_wiz_0));
+ 
+  BUFH clkout2_buf_en
+   (.O   (clk_100M_clk_wiz_0_en_clk),
+    .I   (clk_100M_clk_wiz_0));
+ 
+  always @(posedge clk_100M_clk_wiz_0_en_clk)
+        seq_reg2 <= {seq_reg2[6:0],locked_int};
+
+
 
 
 
