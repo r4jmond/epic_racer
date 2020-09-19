@@ -15,7 +15,7 @@ module draw_menu
     input wire vblnk_in,
     input wire pclk,
     input wire rst,
-    input wire splash_visible,
+    input wire title_screen_visible,
     input wire car_select_visible,
     input wire control_select_visible,
     input wire [11:0] rgb_in,
@@ -74,7 +74,7 @@ begin
     addry = vcount_in + tile_y_pos - (ypos * 16);
     rgb_out_nxt = rgb_in;
     pixel_addr_nxt = 0;
-    if(splash_visible || car_select_visible || control_select_visible)
+    if(title_screen_visible || car_select_visible || control_select_visible)
     begin
         if(hcount_in >= 0 && hcount_in < (SCREEN_WIDTH) && vcount_in >= 0 && vcount_in < (SCREEN_HEIGHT))
         begin
@@ -85,7 +85,7 @@ begin
 end
 
 always @*
-if(splash_visible)
+if(title_screen_visible)
     case ((ypos * 64) + xpos)
     0:
         begin

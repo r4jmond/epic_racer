@@ -73,18 +73,31 @@ xga_timing my_timing (
     .rst(rst)
 );
 
-wire splash_visible, car_select_visible, control_select_visible;
-wire track_visible, player_visible;
-wire lap_timer_start;
+wire title_screen_visible, car_select_visible, control_select_visible;
+wire game_visible, arrow_visible, control;
+wire [3:0] car;
+wire [21:0] eco_car_pos, force_car_pos, nitro_car_pos, rapid_car_pos;
+wire [10:0] arrow_xpos, arrow_ypos;
 
 main_fsm epic_racer_fsm (
     .pclk(clk65M),
     .rst(rst),
-    .splash_visible(splash_visible),
+    .btnR(btnR_D),
+    .btnU(btnU_D),
+    .btnD(btnD_D),
+    .btnL(btnL_D),
+    .title_screen_visible(title_screen_visible),
     .car_select_visible(car_select_visible),
     .control_select_visible(control_select_visible),
-    .track_visible(track_visible),
-    .player_visible(player_visible)
+    .game_visible(game_visible),
+    .arrow_visible(arrow_visible),
+    .control(control),
+    .eco_car_pos(eco_car_pos),
+    .force_car_pos(force_car_pos),
+    .nitro_car_pos(nitro_car_pos),
+    .rapid_car_pos(rapid_car_pos),
+    .arrow_xpos(arrow_xpos),
+    .arrow_ypos(arrow_ypos)
 );
 
 wire [10:0] vcount_mt, hcount_mt;
@@ -103,7 +116,7 @@ draw_menu #(16, 16, 16) draw_menu(
     .rgb_in(0),
     .pclk(clk65M),
     .rst(rst),
-    .splash_visible(splash_visible),
+    .title_screen_visible(title_screen_visible),
     .car_select_visible(car_select_visible),
     .control_select_visible(control_select_visible),
     .rgb_pixel(menu_data),
@@ -138,7 +151,7 @@ draw_track #(16, 16, 16) draw_track(
     .hblnk_in(hblnk_mt),
     .pclk(clk65M),
     .rst(rst),
-    .visible(track_visible),
+    .visible(game_visible),
     .rgb_in(rgb_mt),
     .rgb_pixel(track_data),
     .pixel_addr(track_adress),
@@ -192,7 +205,7 @@ draw_img #(64, 64, 12) draw_car_nitro(
     .rst(rst),
     .xpos(car_xpos),
     .ypos(car_ypos),
-    .visible(player_visible),
+    .visible(game_visible),
     .rgb_in(rgb_tc),
     .rgb_pixel(car_data),
     .pixel_addr(car_adress),
@@ -230,7 +243,7 @@ checkpoints my_checkpoints(
 lap_timer my_lap_timer(
     .pclk(clk65M),
     .rst(rst),
-    .start(track_visible),
+    .start(game_visible),
     .stop(0),
     .lap_finished(lap_finished),
     .checkpoints_passed(checkpoints_passed),
@@ -259,7 +272,7 @@ draw_rect_char #(144, 32, 23, 1, 12'h333) draw_current_lap_time (
     .char_pixels(current_lap_time_char_pixels),
     .pclk(clk65M),
     .rst(rst),
-    .visible(track_visible),
+    .visible(game_visible),
     //.hsync_out(hs),
     .hsync_out(hsync_rcrl),
     .hcount_out(hcount_rcrl),
@@ -305,7 +318,7 @@ draw_rect_char #(416, 32, 20, 1, 12'h333) draw_last_lap_time (
     .char_pixels(last_lap_time_char_pixels),
     .pclk(clk65M),
     .rst(rst),
-    .visible(track_visible),
+    .visible(game_visible),
     .hcount_out(hcount_rlrb),
     .vcount_out(vcount_rlrb),
     .hsync_out(hsync_rlrb),
@@ -344,7 +357,7 @@ draw_rect_char #(664, 32, 20, 1, 12'h333) draw_best_lap_time (
     .char_pixels(best_lap_time_char_pixels),
     .pclk(clk65M),
     .rst(rst),
-    .visible(track_visible),
+    .visible(game_visible),
     /*.hcount_out(hcount_rlrb),
     .vcount_out(vcount_rlrb),
     .hsync_out(hsync_rlrb),
