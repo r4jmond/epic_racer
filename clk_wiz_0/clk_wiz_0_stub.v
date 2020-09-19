@@ -1,7 +1,7 @@
 // Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2017.3 (win64) Build 2018833 Wed Oct  4 19:58:22 MDT 2017
-// Date        : Wed Sep 16 16:30:52 2020
+// Date        : Wed Sep 16 23:57:38 2020
 // Host        : DESKTOP-9K2AFQC running 64-bit major release  (build 9200)
 // Command     : write_verilog -force -mode synth_stub
 //               C:/Users/Rejmi/Documents/Vivado/uec2_projekt/src/clk_wiz_0/clk_wiz_0_stub.v

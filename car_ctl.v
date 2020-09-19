@@ -11,8 +11,8 @@ module car_ctl(
     output wire [10:0] car_x_end,
     output wire [10:0] car_y_start, 
     output wire [10:0] car_y_end
-    /*
-    output reg [10:0] car_x_start_prev, 
+    
+    /*output reg [10:0] car_x_start_prev, 
     output reg [10:0] car_x_end_prev,
     output reg [10:0] car_y_start_prev, 
     output reg [10:0] car_y_end_prev*/
@@ -52,7 +52,7 @@ reg [2:0] state, state_nxt;
 reg [23:0] xtimer, xtimer_nxt, ytimer, ytimer_nxt;
 reg [23:0] xdelay, xdelay_nxt, ydelay, ydelay_nxt;
 reg [1:0] move_dir_nxt, move_dir_prev, move_dir_prev_nxt;
-//wire [10:0] car_x_start, car_x_end, car_y_start, car_y_end;
+///wire [10:0] car_x_start, car_x_end, car_y_start, car_y_end;
 reg [10:0] car_x_start_prev, car_x_end_prev, car_y_start_prev, car_y_end_prev;
 reg moving_down, moving_up, moving_left, moving_right;
 reg moving_down_nxt, moving_up_nxt, moving_left_nxt, moving_right_nxt;

@@ -1,7 +1,7 @@
 -- Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2017.3 (win64) Build 2018833 Wed Oct  4 19:58:22 MDT 2017
--- Date        : Wed Sep 16 16:30:52 2020
+-- Date        : Wed Sep 16 23:57:38 2020
 -- Host        : DESKTOP-9K2AFQC running 64-bit major release  (build 9200)
 -- Command     : write_vhdl -force -mode funcsim
 --               C:/Users/Rejmi/Documents/Vivado/uec2_projekt/src/clk_wiz_0/clk_wiz_0_sim_netlist.vhdl
@@ -26,10 +26,21 @@ end clk_wiz_0_clk_wiz_0_clk_wiz;
 
 architecture STRUCTURE of clk_wiz_0_clk_wiz_0_clk_wiz is
   signal clk_100M_clk_wiz_0 : STD_LOGIC;
+  signal clk_100M_clk_wiz_0_en_clk : STD_LOGIC;
   signal clk_65M_clk_wiz_0 : STD_LOGIC;
+  signal clk_65M_clk_wiz_0_en_clk : STD_LOGIC;
   signal clk_clk_wiz_0 : STD_LOGIC;
   signal clkfbout_buf_clk_wiz_0 : STD_LOGIC;
   signal clkfbout_clk_wiz_0 : STD_LOGIC;
+  signal locked_int : STD_LOGIC;
+  signal seq_reg1 : STD_LOGIC_VECTOR ( 7 downto 0 );
+  attribute RTL_KEEP : string;
+  attribute RTL_KEEP of seq_reg1 : signal is "true";
+  attribute async_reg : string;
+  attribute async_reg of seq_reg1 : signal is "true";
+  signal seq_reg2 : STD_LOGIC_VECTOR ( 7 downto 0 );
+  attribute RTL_KEEP of seq_reg2 : signal is "true";
+  attribute async_reg of seq_reg2 : signal is "true";
   signal NLW_mmcm_adv_inst_CLKFBOUTB_UNCONNECTED : STD_LOGIC;
   signal NLW_mmcm_adv_inst_CLKFBSTOPPED_UNCONNECTED : STD_LOGIC;
   signal NLW_mmcm_adv_inst_CLKINSTOPPED_UNCONNECTED : STD_LOGIC;
@@ -43,7 +54,6 @@ architecture STRUCTURE of clk_wiz_0_clk_wiz_0_clk_wiz is
   signal NLW_mmcm_adv_inst_CLKOUT5_UNCONNECTED : STD_LOGIC;
   signal NLW_mmcm_adv_inst_CLKOUT6_UNCONNECTED : STD_LOGIC;
   signal NLW_mmcm_adv_inst_DRDY_UNCONNECTED : STD_LOGIC;
-  signal NLW_mmcm_adv_inst_LOCKED_UNCONNECTED : STD_LOGIC;
   signal NLW_mmcm_adv_inst_PSDONE_UNCONNECTED : STD_LOGIC;
   signal NLW_mmcm_adv_inst_DO_UNCONNECTED : STD_LOGIC_VECTOR ( 15 downto 0 );
   attribute BOX_TYPE : string;
@@ -56,8 +66,33 @@ architecture STRUCTURE of clk_wiz_0_clk_wiz_0_clk_wiz is
   attribute IFD_DELAY_VALUE : string;
   attribute IFD_DELAY_VALUE of clkin1_ibufg : label is "AUTO";
   attribute BOX_TYPE of clkout1_buf : label is "PRIMITIVE";
+  attribute XILINX_LEGACY_PRIM : string;
+  attribute XILINX_LEGACY_PRIM of clkout1_buf : label is "BUFGCE";
+  attribute XILINX_TRANSFORM_PINMAP : string;
+  attribute XILINX_TRANSFORM_PINMAP of clkout1_buf : label is "CE:CE0 I:I0";
+  attribute BOX_TYPE of clkout1_buf_en : label is "PRIMITIVE";
   attribute BOX_TYPE of clkout2_buf : label is "PRIMITIVE";
+  attribute XILINX_LEGACY_PRIM of clkout2_buf : label is "BUFGCE";
+  attribute XILINX_TRANSFORM_PINMAP of clkout2_buf : label is "CE:CE0 I:I0";
+  attribute BOX_TYPE of clkout2_buf_en : label is "PRIMITIVE";
   attribute BOX_TYPE of mmcm_adv_inst : label is "PRIMITIVE";
+  attribute ASYNC_REG_boolean : boolean;
+  attribute ASYNC_REG_boolean of \seq_reg1_reg[0]\ : label is std.standard.true;
+  attribute ASYNC_REG_boolean of \seq_reg1_reg[1]\ : label is std.standard.true;
+  attribute ASYNC_REG_boolean of \seq_reg1_reg[2]\ : label is std.standard.true;
+  attribute ASYNC_REG_boolean of \seq_reg1_reg[3]\ : label is std.standard.true;
+  attribute ASYNC_REG_boolean of \seq_reg1_reg[4]\ : label is std.standard.true;
+  attribute ASYNC_REG_boolean of \seq_reg1_reg[5]\ : label is std.standard.true;
+  attribute ASYNC_REG_boolean of \seq_reg1_reg[6]\ : label is std.standard.true;
+  attribute ASYNC_REG_boolean of \seq_reg1_reg[7]\ : label is std.standard.true;
+  attribute ASYNC_REG_boolean of \seq_reg2_reg[0]\ : label is std.standard.true;
+  attribute ASYNC_REG_boolean of \seq_reg2_reg[1]\ : label is std.standard.true;
+  attribute ASYNC_REG_boolean of \seq_reg2_reg[2]\ : label is std.standard.true;
+  attribute ASYNC_REG_boolean of \seq_reg2_reg[3]\ : label is std.standard.true;
+  attribute ASYNC_REG_boolean of \seq_reg2_reg[4]\ : label is std.standard.true;
+  attribute ASYNC_REG_boolean of \seq_reg2_reg[5]\ : label is std.standard.true;
+  attribute ASYNC_REG_boolean of \seq_reg2_reg[6]\ : label is std.standard.true;
+  attribute ASYNC_REG_boolean of \seq_reg2_reg[7]\ : label is std.standard.true;
 begin
 clkf_buf: unisim.vcomponents.BUFG
      port map (
@@ -72,15 +107,49 @@ clkin1_ibufg: unisim.vcomponents.IBUF
       I => clk,
       O => clk_clk_wiz_0
     );
-clkout1_buf: unisim.vcomponents.BUFG
+clkout1_buf: unisim.vcomponents.BUFGCTRL
+    generic map(
+      INIT_OUT => 0,
+      PRESELECT_I0 => true,
+      PRESELECT_I1 => false
+    )
+        port map (
+      CE0 => seq_reg1(7),
+      CE1 => '0',
+      I0 => clk_65M_clk_wiz_0,
+      I1 => '1',
+      IGNORE0 => '0',
+      IGNORE1 => '1',
+      O => clk_65M,
+      S0 => '1',
+      S1 => '0'
+    );
+clkout1_buf_en: unisim.vcomponents.BUFH
      port map (
       I => clk_65M_clk_wiz_0,
-      O => clk_65M
+      O => clk_65M_clk_wiz_0_en_clk
     );
-clkout2_buf: unisim.vcomponents.BUFG
+clkout2_buf: unisim.vcomponents.BUFGCTRL
+    generic map(
+      INIT_OUT => 0,
+      PRESELECT_I0 => true,
+      PRESELECT_I1 => false
+    )
+        port map (
+      CE0 => seq_reg2(7),
+      CE1 => '0',
+      I0 => clk_100M_clk_wiz_0,
+      I1 => '1',
+      IGNORE0 => '0',
+      IGNORE1 => '1',
+      O => clk_100M,
+      S0 => '1',
+      S1 => '0'
+    );
+clkout2_buf_en: unisim.vcomponents.BUFH
      port map (
       I => clk_100M_clk_wiz_0,
-      O => clk_100M
+      O => clk_100M_clk_wiz_0_en_clk
     );
 mmcm_adv_inst: unisim.vcomponents.MMCME2_ADV
     generic map(
@@ -160,13 +229,189 @@ mmcm_adv_inst: unisim.vcomponents.MMCME2_ADV
       DO(15 downto 0) => NLW_mmcm_adv_inst_DO_UNCONNECTED(15 downto 0),
       DRDY => NLW_mmcm_adv_inst_DRDY_UNCONNECTED,
       DWE => '0',
-      LOCKED => NLW_mmcm_adv_inst_LOCKED_UNCONNECTED,
+      LOCKED => locked_int,
       PSCLK => '0',
       PSDONE => NLW_mmcm_adv_inst_PSDONE_UNCONNECTED,
       PSEN => '0',
       PSINCDEC => '0',
       PWRDWN => '0',
       RST => '0'
+    );
+\seq_reg1_reg[0]\: unisim.vcomponents.FDRE
+    generic map(
+      INIT => '0'
+    )
+        port map (
+      C => clk_65M_clk_wiz_0_en_clk,
+      CE => '1',
+      D => locked_int,
+      Q => seq_reg1(0),
+      R => '0'
+    );
+\seq_reg1_reg[1]\: unisim.vcomponents.FDRE
+    generic map(
+      INIT => '0'
+    )
+        port map (
+      C => clk_65M_clk_wiz_0_en_clk,
+      CE => '1',
+      D => seq_reg1(0),
+      Q => seq_reg1(1),
+      R => '0'
+    );
+\seq_reg1_reg[2]\: unisim.vcomponents.FDRE
+    generic map(
+      INIT => '0'
+    )
+        port map (
+      C => clk_65M_clk_wiz_0_en_clk,
+      CE => '1',
+      D => seq_reg1(1),
+      Q => seq_reg1(2),
+      R => '0'
+    );
+\seq_reg1_reg[3]\: unisim.vcomponents.FDRE
+    generic map(
+      INIT => '0'
+    )
+        port map (
+      C => clk_65M_clk_wiz_0_en_clk,
+      CE => '1',
+      D => seq_reg1(2),
+      Q => seq_reg1(3),
+      R => '0'
+    );
+\seq_reg1_reg[4]\: unisim.vcomponents.FDRE
+    generic map(
+      INIT => '0'
+    )
+        port map (
+      C => clk_65M_clk_wiz_0_en_clk,
+      CE => '1',
+      D => seq_reg1(3),
+      Q => seq_reg1(4),
+      R => '0'
+    );
+\seq_reg1_reg[5]\: unisim.vcomponents.FDRE
+    generic map(
+      INIT => '0'
+    )
+        port map (
+      C => clk_65M_clk_wiz_0_en_clk,
+      CE => '1',
+      D => seq_reg1(4),
+      Q => seq_reg1(5),
+      R => '0'
+    );
+\seq_reg1_reg[6]\: unisim.vcomponents.FDRE
+    generic map(
+      INIT => '0'
+    )
+        port map (
+      C => clk_65M_clk_wiz_0_en_clk,
+      CE => '1',
+      D => seq_reg1(5),
+      Q => seq_reg1(6),
+      R => '0'
+    );
+\seq_reg1_reg[7]\: unisim.vcomponents.FDRE
+    generic map(
+      INIT => '0'
+    )
+        port map (
+      C => clk_65M_clk_wiz_0_en_clk,
+      CE => '1',
+      D => seq_reg1(6),
+      Q => seq_reg1(7),
+      R => '0'
+    );
+\seq_reg2_reg[0]\: unisim.vcomponents.FDRE
+    generic map(
+      INIT => '0'
+    )
+        port map (
+      C => clk_100M_clk_wiz_0_en_clk,
+      CE => '1',
+      D => locked_int,
+      Q => seq_reg2(0),
+      R => '0'
+    );
+\seq_reg2_reg[1]\: unisim.vcomponents.FDRE
+    generic map(
+      INIT => '0'
+    )
+        port map (
+      C => clk_100M_clk_wiz_0_en_clk,
+      CE => '1',
+      D => seq_reg2(0),
+      Q => seq_reg2(1),
+      R => '0'
+    );
+\seq_reg2_reg[2]\: unisim.vcomponents.FDRE
+    generic map(
+      INIT => '0'
+    )
+        port map (
+      C => clk_100M_clk_wiz_0_en_clk,
+      CE => '1',
+      D => seq_reg2(1),
+      Q => seq_reg2(2),
+      R => '0'
+    );
+\seq_reg2_reg[3]\: unisim.vcomponents.FDRE
+    generic map(
+      INIT => '0'
+    )
+        port map (
+      C => clk_100M_clk_wiz_0_en_clk,
+      CE => '1',
+      D => seq_reg2(2),
+      Q => seq_reg2(3),
+      R => '0'
+    );
+\seq_reg2_reg[4]\: unisim.vcomponents.FDRE
+    generic map(
+      INIT => '0'
+    )
+        port map (
+      C => clk_100M_clk_wiz_0_en_clk,
+      CE => '1',
+      D => seq_reg2(3),
+      Q => seq_reg2(4),
+      R => '0'
+    );
+\seq_reg2_reg[5]\: unisim.vcomponents.FDRE
+    generic map(
+      INIT => '0'
+    )
+        port map (
+      C => clk_100M_clk_wiz_0_en_clk,
+      CE => '1',
+      D => seq_reg2(4),
+      Q => seq_reg2(5),
+      R => '0'
+    );
+\seq_reg2_reg[6]\: unisim.vcomponents.FDRE
+    generic map(
+      INIT => '0'
+    )
+        port map (
+      C => clk_100M_clk_wiz_0_en_clk,
+      CE => '1',
+      D => seq_reg2(5),
+      Q => seq_reg2(6),
+      R => '0'
+    );
+\seq_reg2_reg[7]\: unisim.vcomponents.FDRE
+    generic map(
+      INIT => '0'
+    )
+        port map (
+      C => clk_100M_clk_wiz_0_en_clk,
+      CE => '1',
+      D => seq_reg2(6),
+      Q => seq_reg2(7),
+      R => '0'
     );
 end STRUCTURE;
 library IEEE;

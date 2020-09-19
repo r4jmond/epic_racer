@@ -56,6 +56,14 @@ begin
             track_visible_nxt = 1;
             player_visible_nxt = 1;
         end
+        default:
+        begin
+                splash_visible_nxt = 0;
+        track_visible_nxt = 0;
+        player_visible_nxt = 0;
+        car_select_visible_nxt = 0;
+        control_select_visible_nxt = 0;
+        end
     endcase
 end
 

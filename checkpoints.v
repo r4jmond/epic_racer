@@ -32,14 +32,14 @@ end
 
 always@*
 begin
-    checkpoints_passed_nxt = checkpoints_passed;
-    lap_finished_nxt = lap_finished;
+    checkpoints_passed_nxt = 0;
+    lap_finished_nxt = 0;
     checkpoints_nxt = checkpoints;
     
     if(checkpoints == 6'b111111) checkpoints_passed_nxt = 1;
     else checkpoints_passed_nxt = 0;
     
-    if(car_x_start >= 506 && car_x_end <= 528 && car_y_end <= 160) 
+    if(car_x_start >= 506 && car_x_end <= 529 && car_y_end <= 160) 
     begin
         lap_finished_nxt = 1;
         checkpoints_nxt = 6'b0;

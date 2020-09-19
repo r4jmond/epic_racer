@@ -21,7 +21,7 @@ wire clk100M, clk65M, gnd;
 
 clk_wiz_0 my_clk(
     .clk(clk),
-    .clk_100M(clk100M),
+//    .clk_100M(clk100M),
     .clk_65M(clk65M)
 );
 
@@ -70,8 +70,7 @@ xga_timing my_timing (
     .hsync(hsync),
     .hblnk(hblnk),
     .pclk(clk65M),
-    .rst(rst),
-    .frame_ended(frame_ended)
+    .rst(rst)
 );
 
 wire splash_visible, car_select_visible, control_select_visible;
@@ -179,8 +178,6 @@ car_ctl my_car_ctl(
     .car_x_end(car_x_end),
     .car_y_start(car_y_start),
     .car_y_end(car_y_end)
-    //.lap_finished(lap_finished),
-    //.checkpoints_passed(checkpoints_passed)
 );
 
 draw_img #(64, 64, 12) draw_car_nitro(
@@ -216,6 +213,7 @@ image_rom #(64, 64, 12, "./images/car_nitro.data") car_nitro_rom(
 
 
 wire [15:0] current_lap_time, last_lap_time, best_lap_time;
+//wire [15:0] current_lap_time_delayed, last_lap_time_delayed, best_lap_time_delayed;
 
 checkpoints my_checkpoints(
     .pclk(clk65M),
@@ -229,12 +227,10 @@ checkpoints my_checkpoints(
 );
 
 lap_timer my_lap_timer(
-    .clk65M(clk65M),
-    .clk100M(clk100M),
+    .pclk(clk65M),
     .rst(rst),
-    .lap_finished(lap_finished),
     .start(track_visible),
-    //.start(lap_timer_start),
+    .lap_finished(lap_finished),
     .current_lap_time(current_lap_time),
     .last_lap_time(last_lap_time),
     .best_lap_time(best_lap_time)
@@ -260,13 +256,16 @@ draw_rect_char #(128, 32, 25, 1, 12'h333) draw_current_lap_time (
     .pclk(clk65M),
     .rst(rst),
     .visible(track_visible),
+    //.hsync_out(hs),
     .hsync_out(hsync_rcrl),
     .hcount_out(hcount_rcrl),
     .hblnk_out(hblnk_rcrl),
     .vcount_out(vcount_rcrl),
     .vsync_out(vsync_rcrl),
+    //.vsync_out(vs),
     .vblnk_out(vblnk_rcrl),
     .rgb_out(rgb_rcrl),
+    //.rgb_out({r, g, b}),
     .char_xy(current_lap_time_char_xy),
     .char_line(current_lap_time_char_addr[3:0])
 );
@@ -326,14 +325,9 @@ font_rom last_lap_time_font_rom (
     .char_line_pixels(last_lap_time_char_pixels)
 );
 
-
 wire [10:0] best_lap_time_char_addr;
 wire [7:0] best_lap_time_char_pixels;
 wire [15:0] best_lap_time_char_xy;
-
-//wire [10:0] vcount_rb, hcount_rlrb;           
-//wire vsync_rlrb, vblnk_rlrb, hsync_rlrb, hblnk_rlrb;
-//wire [11:0] rgb_rlrb;
 
 draw_rect_char #(680, 32, 22, 1, 12'h333) draw_best_lap_time (
     .hcount_in(hcount_rlrb),
@@ -372,8 +366,6 @@ font_rom best_lap_time_font_rom (
     .addr(best_lap_time_char_addr),
     .char_line_pixels(best_lap_time_char_pixels)
 );
-
-
 /*
 keyboard my_keyboard(
     .clk(clk100M),
