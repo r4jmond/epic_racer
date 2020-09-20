@@ -483,7 +483,6 @@ draw_rect_char #(416, 32, 20, 1, 12'h333) draw_last_lap_time (
 
 last_lap_time_char_rom last_lap_time_char_rom(
     .char_xy(last_lap_time_char_xy),
-    //.last_lap_time(max_lap_time_exceeded),
     .last_lap_time(last_lap_time),
     .char_code(last_lap_time_char_addr[10:4])
 );
@@ -521,17 +520,13 @@ draw_rect_char #(664, 32, 20, 1, 12'h333) draw_best_lap_time (
     .hblnk_out(hblnk_rbrs),
     .vblnk_out(vblnk_rbrs),
     .rgb_out(rgb_rbrs),
-    //.rgb_out({r, g, b}),
-    //.vsync_out(vs),
-    //.hsync_out(hs),
     .char_xy(best_lap_time_char_xy),
     .char_line(best_lap_time_char_addr[3:0])
 );
 
 best_lap_time_char_rom best_lap_time_char_rom(
     .char_xy(best_lap_time_char_xy),
-    .best_lap_time(checkpoints_passed),
-  //  .best_lap_time(best_lap_time),
+    .best_lap_time(best_lap_time),
     .char_code(best_lap_time_char_addr[10:4])
 );
 
@@ -591,7 +586,7 @@ wire [10:0] vcount_out, hcount_out;
 wire vsync_out, vblnk_out, hsync_out, hblnk_out;
 wire [11:0] rgb_out;
 
-draw_rect_char #(424, 350, 22, 1, 12'h333) draw_cheater_rect_char (
+draw_rect_char #(424, 350, 30, 1, 12'h333) draw_cheater_rect_char (
     .hcount_in(hcount_rsrc),
     .vcount_in(vcount_rsrc),
     .hsync_in(hsync_rsrc),
@@ -602,7 +597,6 @@ draw_rect_char #(424, 350, 22, 1, 12'h333) draw_cheater_rect_char (
     .char_pixels(cheater_char_pixels),
     .pclk(clk65M),
     .rst(rst),
-    //.visible(game_visible),
     .visible(cheater_visible),
     .hcount_out(hcount_out),
     .vcount_out(vcount_out),
