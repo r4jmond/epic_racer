@@ -76,10 +76,10 @@ begin
     car_select_visible_nxt = car_select_visible;
     arrow_visible_nxt = arrow_visible;
     control_nxt = NO_CONTROL;
-    nitro_avatar_xpos_nxt = 240;
-    nitro_avatar_ypos_nxt = 370;
-    rapid_avatar_xpos_nxt = 640;
-    rapid_avatar_ypos_nxt = 370;
+    nitro_avatar_xpos_nxt = 250;
+    nitro_avatar_ypos_nxt = 380;
+    rapid_avatar_xpos_nxt = 660;
+    rapid_avatar_ypos_nxt = 380;
     arrow_xpos_nxt = arrow_xpos; 
     arrow_ypos_nxt = arrow_ypos;
     menu_timer_nxt = 0;
@@ -123,16 +123,16 @@ begin
         case(choosing_car)         
         SELECTING_NITRO_CAR:
         begin
-            arrow_xpos_nxt = 270; 
-            arrow_ypos_nxt = 480; 
+            arrow_xpos_nxt = 256; 
+            arrow_ypos_nxt = 470; 
             arrow_visible_nxt = 1;
             if (btnU || key == KEY_ENTER) car_visible_nxt = NITRO_CAR_VISIBLE;
             else if(btnR || key == KEY_RIGHT) choosing_car_nxt = SELECTING_RAPID_CAR;
         end
         SELECTING_RAPID_CAR:
         begin
-             arrow_xpos_nxt = 670;
-             arrow_ypos_nxt = 480;
+             arrow_xpos_nxt = 672;
+             arrow_ypos_nxt = 470;
              arrow_visible_nxt = 1;
              if (btnU || key == KEY_ENTER) car_visible_nxt = RAPID_CAR_VISIBLE;
              else if(btnL || key == KEY_LEFT) choosing_car_nxt = SELECTING_NITRO_CAR;
@@ -166,7 +166,7 @@ begin
             ARROW_ON_KEYBOARD:
             begin
                 arrow_xpos_nxt = 256; 
-                arrow_ypos_nxt = 576; 
+                arrow_ypos_nxt = 500; 
                 arrow_visible_nxt = 1;
                 if((btnU || (key == KEY_ENTER))) next_control_nxt = KEYBOARD;
                 else if(btnR || (key == KEY_RIGHT)) control_arrow_nxt = ARROW_ON_BASYS;
@@ -174,7 +174,7 @@ begin
             ARROW_ON_BASYS:
             begin
                 arrow_xpos_nxt = 640;
-                arrow_ypos_nxt = 576;
+                arrow_ypos_nxt = 500;
                 arrow_visible_nxt = 1;
                 if ((btnU || (key == KEY_ENTER))) next_control_nxt = BASYS;
                 else if (btnL || key == KEY_LEFT) control_arrow_nxt = ARROW_ON_KEYBOARD;
