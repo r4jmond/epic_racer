@@ -23,9 +23,10 @@
 module main_fsm(
     input wire pclk,
     input wire rst,
-    input wire [7:0] keycode,
-    input wire [5:0] key,
-    output reg splash_visible,
+    input wire btnR,
+    input wire btnU,
+    input wire btnD,
+    input wire btnL,
     output reg track_visible,
     output reg player_visible,
     output reg [1:0] title_screen_visible,
@@ -61,8 +62,8 @@ localparam KEY_ESC = 6'b100000;
 localparam NULL = 6'b000000;
 
     
-localparam GAME = 2'b00;
-localparam TITLE_SCREEN = 2'b01;
+localparam GAME = 2'b01;
+localparam TITLE_SCREEN = 2'b00;
 localparam CAR_SELECT = 2'b11;
 localparam CONTROL_SELECT = 2'b10;
 
@@ -80,6 +81,7 @@ localparam NITRO_CAR = 4'b0011;
 localparam RAPID_CAR = 4'b0100;
 localparam KEYBOARD = 4'b0101;
 localparam BASYS = 4'b0110;
+localparam INIT = 0 ; 
 
 reg [3:0] car_arrow, car_arrow_nxt;
 reg [1:0] control_arrow, control_arrow_nxt;
@@ -94,67 +96,86 @@ reg lap_timer_start_nxt;
 
 always@(*)
     begin
-        lap_timer_start_nxt = 1'b0;
-        title_screen_visible_nxt = 1'b0;
-        track_visible_nxt = 1'b0;
-        player_visible_nxt = 1'b0;
-        control_select_visible_nxt = 1'b0;
-        car_select_visible_nxt = 1'b0;
-        arrow_visible_nxt = 1'b0;
-        eco_car_visible_nxt = 1'b0;
-        rapid_car_visible_nxt = 1'b0;
-        nitro_car_visible_nxt = 1'b0;
-        force_car_visible_nxt = 1'b0;
-        eco_car_xpos_nxt = 0;
-        eco_car_ypos_nxt = 0;
-        force_car_xpos_nxt = 0;
-        force_car_ypos_nxt = 0;
-        nitro_car_xpos_nxt = 0;
-        nitro_car_ypos_nxt = 0;
-        rapid_car_xpos_nxt = 0;
-        rapid_car_ypos_nxt = 0;
-        arrow_xpos_nxt = 0; 
-        arrow_ypos_nxt = 0; 
-        state_nxt = TITLE_SCREEN;
+        car_nxt = car;
+        state_nxt=TITLE_SCREEN;
+        control_arrow_nxt=control_arrow;
+        car_arrow_nxt=car_arrow;
+        control_nxt = control;
+        lap_timer_start_nxt = lap_timer_start;
+        title_screen_visible_nxt = title_screen_visible;
+        track_visible_nxt = track_visible;
+        player_visible_nxt = player_visible;
+        control_select_visible_nxt = control_select_visible;
+        car_select_visible_nxt = car_select_visible;
+        arrow_visible_nxt = arrow_visible;
+        eco_car_visible_nxt = eco_car_visible;
+        rapid_car_visible_nxt = rapid_car_visible;
+        nitro_car_visible_nxt = nitro_car_visible;
+        force_car_visible_nxt = force_car_visible;
+        eco_car_xpos_nxt = eco_car_xpos;
+        eco_car_ypos_nxt = eco_car_ypos;
+        force_car_xpos_nxt = force_car_xpos;
+        force_car_ypos_nxt = force_car_ypos;
+        nitro_car_xpos_nxt = nitro_car_xpos;
+        nitro_car_ypos_nxt = nitro_car_ypos;
+        rapid_car_xpos_nxt = rapid_car_xpos;
+        rapid_car_ypos_nxt = rapid_car_ypos;
+        arrow_xpos_nxt = arrow_xpos; 
+        arrow_ypos_nxt = arrow_ypos; 
         case(state)
+
+        	
             TITLE_SCREEN:
                 begin
-                    lap_timer_start_nxt = 1'b0;
-                    title_screen_visible_nxt = 1'b1;
-                    track_visible_nxt = 1'b0;
-                    player_visible_nxt = 1'b0;
-                    control_select_visible_nxt = 1'b0;
-                    car_select_visible_nxt = 1'b0;
-                    arrow_visible_nxt = 1'b0;
-                    eco_car_visible_nxt = 1'b0;
-                    rapid_car_visible_nxt = 1'b0;
-                    nitro_car_visible_nxt = 1'b0;
-                    force_car_visible_nxt = 1'b0;
-                if(keycode) 
-                    state_nxt = CAR_SELECT;
+                 car_arrow_nxt=0;
+                 control_nxt = 0;
+                 lap_timer_start_nxt = 0;
+                 title_screen_visible_nxt = 1;
+                 track_visible_nxt = 0;
+                 player_visible_nxt = 0;
+                 control_select_visible_nxt = 0;
+                 car_select_visible_nxt = 0;
+                 arrow_visible_nxt = 0;
+                 eco_car_visible_nxt = 0;
+                 rapid_car_visible_nxt = 0;
+                 nitro_car_visible_nxt = 0;
+                 force_car_visible_nxt = 0;
+ 
+                    if(btnU) 
+                        state_nxt = CAR_SELECT;
+                    else 
+                        state_nxt = TITLE_SCREEN;
+
             end
             CAR_SELECT:
                 begin
-                    lap_timer_start_nxt = 1'b0;
-                    title_screen_visible_nxt = 1'b0;
-                    track_visible_nxt = 1'b0;
-                    player_visible_nxt = 1'b0;
-                    control_select_visible_nxt = 1'b0;
-                    car_select_visible_nxt = 1'b1;
-                    arrow_visible_nxt = 1'b0;
-                    eco_car_visible_nxt = 1'b1;
-                    rapid_car_visible_nxt = 1'b1;
-                    nitro_car_visible_nxt = 1'b1;
-                    force_car_visible_nxt = 1'b1;
-                    eco_car_xpos_nxt = 0;
-                    eco_car_ypos_nxt = 0;
-                    force_car_xpos_nxt = 0;
-                    force_car_ypos_nxt = 0;
-                    nitro_car_xpos_nxt = 0;
-                    nitro_car_ypos_nxt = 0;
-                    rapid_car_xpos_nxt = 768;
-                    rapid_car_ypos_nxt = 384;
-                 if (key == KEY_LEFT) 
+                car_arrow_nxt=0;
+                control_nxt = 0;
+                lap_timer_start_nxt = 0;
+                title_screen_visible_nxt = 0;
+                track_visible_nxt = 0;
+                player_visible_nxt = 0;
+                control_select_visible_nxt = 0;
+                car_select_visible_nxt = 1;
+                arrow_visible_nxt = 0;
+                eco_car_visible_nxt = 1;
+                rapid_car_visible_nxt = 1;
+                nitro_car_visible_nxt = 1;
+                force_car_visible_nxt = 1;
+                if(btnU)
+                    state_nxt = CONTROL_SELECT;
+                else
+                    state_nxt = CAR_SELECT;    
+                                
+                 eco_car_xpos_nxt = 0;
+                 eco_car_ypos_nxt = 0;
+                 force_car_xpos_nxt = 0;
+                 force_car_ypos_nxt = 0;
+                 nitro_car_xpos_nxt = 0;
+                 nitro_car_ypos_nxt = 0;
+                 rapid_car_xpos_nxt = 768;
+                 rapid_car_ypos_nxt = 384;
+                 if (btnL) 
                       car_arrow_nxt = ARROW_ON_ECO_CAR;               
                       case(car_arrow)
                         ARROW_ON_ECO_CAR:                        
@@ -162,9 +183,9 @@ always@(*)
                             arrow_xpos_nxt = 208; 
                             arrow_ypos_nxt = 480; 
                             arrow_visible_nxt = 1'b1;
-                            if (key == KEY_ENTER)
+                            if (btnU)
                                 car_nxt = ECO_CAR;
-                            else if(key == KEY_LEFT)
+                            else if(btnR)
                                 car_arrow_nxt = ARROW_ON_FORCE_CAR;
                         end
                         ARROW_ON_FORCE_CAR:
@@ -172,9 +193,9 @@ always@(*)
                             arrow_xpos_nxt = 400; 
                             arrow_ypos_nxt = 480; 
                             arrow_visible_nxt = 1'b1;
-                            if  (key == KEY_ENTER)
+                            if  (btnU)
                                 car_nxt = FORCE_CAR;
-                             else if (key == KEY_LEFT)
+                             else if (btnR)
                                 car_arrow_nxt = ARROW_ON_NITRO_CAR;
                         end
                         ARROW_ON_NITRO_CAR:
@@ -182,9 +203,9 @@ always@(*)
                             arrow_xpos_nxt = 592; 
                             arrow_ypos_nxt = 480; 
                             arrow_visible_nxt = 1'b1;
-                            if (key == KEY_ENTER)
+                            if (btnU)
                                  car_nxt = NITRO_CAR;
-                            else if(key == KEY_LEFT)
+                            else if(btnR)
                                  car_arrow_nxt = ARROW_ON_RAPID_CAR;
                         end
                         ARROW_ON_RAPID_CAR:
@@ -192,39 +213,45 @@ always@(*)
                              arrow_xpos_nxt = 208; 
                              arrow_ypos_nxt = 480; 
                              arrow_visible_nxt = 1'b1;
-                             if (key == KEY_ENTER)
+                             if (btnU)
                                  car_nxt = RAPID_CAR;
-                             else if(key == KEY_LEFT)
+                             else if(btnR)
                                  car_arrow_nxt = ARROW_ON_ECO_CAR;
                         end
                       endcase
-                      
-                      if(key == KEY_ENTER)
-                      state_nxt = CONTROL_SELECT;
+                   
+
                    end
                    
                CONTROL_SELECT:
                     begin
-                       lap_timer_start_nxt = 1'b0;
-                       title_screen_visible_nxt = 1'b0;
-                       track_visible_nxt = 1'b0;
-                       player_visible_nxt = 1'b0;
-                       control_select_visible_nxt = 1'b1;
-                       car_select_visible_nxt = 1'b0; 
-                       arrow_visible_nxt = 1'b0;
-                       eco_car_visible_nxt = 1'b0;
-                       rapid_car_visible_nxt = 1'b0;
-                       nitro_car_visible_nxt = 1'b0;
-                       force_car_visible_nxt = 1'b0;
-                       case(control_arrow)
+                    car_arrow_nxt=0;
+                    control_nxt = 0;
+                    lap_timer_start_nxt = 0;
+                    title_screen_visible_nxt = 0;
+                    track_visible_nxt = 0;
+                    player_visible_nxt = 0;
+                    control_select_visible_nxt = 1;
+                    car_select_visible_nxt = 0;
+                    arrow_visible_nxt = 0;
+                    eco_car_visible_nxt = 0;
+                    rapid_car_visible_nxt = 0;
+                    nitro_car_visible_nxt = 0;
+                    force_car_visible_nxt = 0;
+                    if(btnU)
+                    state_nxt = GAME;
+                    else 
+                    state_nxt = CONTROL_SELECT;
+
+                   case(control_arrow)
                              ARROW_ON_KEYBOARD:
                              begin
                                  arrow_xpos_nxt = 256; 
                                  arrow_ypos_nxt = 576; 
                                  arrow_visible_nxt = 1'b1;
-                                 if (key == KEY_ENTER)
+                                 if (btnU)
                                     control_nxt = KEYBOARD;
-                                 else if(key == KEY_LEFT)
+                                 else if(btnR)
                                     control_arrow_nxt = ARROW_ON_BASYS;
                              end
                              ARROW_ON_BASYS:
@@ -232,64 +259,42 @@ always@(*)
                                  arrow_xpos_nxt = 640; 
                                  arrow_ypos_nxt = 576; 
                                   arrow_visible_nxt = 1'b1;
-                                  if (key == KEY_ENTER)
+                                  if (btnU)
                                      control_nxt = BASYS;
-                                  else if (key == KEY_LEFT)
+                                  else if (btnR)
                                      control_arrow_nxt = ARROW_ON_KEYBOARD;
                              end
-                        endcase
-                      if(key == KEY_ENTER)
-                      state_nxt = GAME;
+                       endcase
+                       
+
                     end
                 GAME:
                     begin
-                        lap_timer_start_nxt = 1'b1;
-                        title_screen_visible_nxt = 1'b0;
-                        track_visible_nxt = 1'b1;
-                        player_visible_nxt = 1'b1;
-                        control_select_visible_nxt = 1'b0;
-                        car_select_visible_nxt = 1'b0; 
-                        arrow_visible_nxt = 1'b0;
-                        eco_car_visible_nxt = 1'b0;
-                        rapid_car_visible_nxt = 1'b0;
-                        nitro_car_visible_nxt = 1'b0;
-                        force_car_visible_nxt = 1'b0;
-                    end
-                                          
+                    car_arrow_nxt=0;
+                    control_nxt = 0;
+                    lap_timer_start_nxt = 1;
+                    title_screen_visible_nxt = 0;
+                    track_visible_nxt = 1;
+                    player_visible_nxt = 1;
+                    control_select_visible_nxt = 0;
+                    car_select_visible_nxt = 0;
+                    arrow_visible_nxt = 0;
+                    eco_car_visible_nxt = 0;
+                    rapid_car_visible_nxt = 0;
+                    nitro_car_visible_nxt = 0;
+                    force_car_visible_nxt = 0;
+                    if (btnU)
+                    state_nxt = TITLE_SCREEN;
+                    else 
+                    state_nxt = GAME;
+
+
+                    end                       
             endcase            
-                  
+            if(rst) state_nxt = TITLE_SCREEN;      
       end 
       
  always @(posedge pclk)
-      if(rst)
-      begin
-          state <= TITLE_SCREEN; 
-          lap_timer_start <= 0;
-          car_select_visible <= 0;
-          title_screen_visible <=0;
-          track_visible <= 0;
-          player_visible <= 0;
-          control_select_visible <= 0;
-          arrow_visible <= 0;
-          eco_car_visible <= 0;
-          rapid_car_visible <= 0;
-          nitro_car_visible <= 0;
-          force_car_visible <= 0;
-          arrow_xpos <= 0; 
-          arrow_ypos <=0;
-          control <= 0;
-          control_arrow <= 0;
-          car <= 0;
-          eco_car_xpos <= 0;
-          eco_car_ypos<= 0;
-          force_car_xpos <= 0;
-          force_car_ypos <= 0;
-          nitro_car_xpos <= 0;
-          nitro_car_ypos <= 0;
-          rapid_car_xpos <= 0;
-          rapid_car_ypos <= 0;
-      end
-      else
       begin
           state <= state_nxt;
           lap_timer_start <= lap_timer_start_nxt;

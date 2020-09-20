@@ -1,24 +1,4 @@
-
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 13.08.2020 00:06:15
-// Design Name: 
-// Module Name: keyboard
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
 module keyboard(
    input wire clk,	//board clock
@@ -97,6 +77,5 @@ always @(*)
 				end
 		endcase
 	end
-
 
 endmodule
