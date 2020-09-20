@@ -13,7 +13,6 @@ module checkpoints(
 
 reg lap_finished_nxt, checkpoints_passed_nxt;
 reg [5:0] checkpoints, checkpoints_nxt;
-//reg [5:0] checkpoints_nxt;
 
 always@(posedge pclk)
 begin
@@ -43,12 +42,12 @@ begin
     begin
         lap_finished_nxt = 1;
     end
-    else 
+    else
     begin
         lap_finished_nxt = 0;
     end
     
-    if(lap_finished) checkpoints_nxt = 0;
+    if(lap_finished && lap_finished_nxt == 0) checkpoints_nxt = 0;
     
     if(car_x_start >= 790 && car_x_end <= 912  && car_y_start >= 190 && car_y_end <= 215) checkpoints_nxt = checkpoints | 6'b000001;
     if(car_x_start >= 735 && car_x_end <= 760  && car_y_start >= 246 && car_y_end <= 450) checkpoints_nxt = checkpoints | 6'b000010;

@@ -120,8 +120,8 @@ set_property PACKAGE_PIN U17 [get_ports btnD]
 	set_property IOSTANDARD LVCMOS33 [get_ports btnD]
  
 # Constraints for PCLK_MIRROR
-set_property PACKAGE_PIN J1 [get_ports {pclk_mirror}]
-    set_property IOSTANDARD LVCMOS33 [get_ports {pclk_mirror}]
+#set_property PACKAGE_PIN J1 [get_ports {pclk_mirror}]
+    #set_property IOSTANDARD LVCMOS33 [get_ports {pclk_mirror}]
 
 ##Pmod Header JA
 ##Sch name = JA1

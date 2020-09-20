@@ -13,8 +13,7 @@ module epic_racer (
     input wire ps2_data,
     output wire [3:0] r,
     output wire [3:0] g,
-    output wire [3:0] b,
-    output wire pclk_mirror
+    output wire [3:0] b
 );
 
 wire clk65M;
@@ -24,37 +23,18 @@ clk_wiz_0 my_clk(
     .clk_65M(clk65M)
 );
 
-  ODDR pclk_oddr (
-    .Q(pclk_mirror),
-    .C(clk65M),
-    .CE(1'b1),
-    .D1(1'b1),
-    .D2(1'b0),
-    .R(1'b0),
-    .S(1'b0)
-);
-
 wire btnR_D, btnL_D, btnD_D, btnU_D;
 
-debouncer btnR_debouncer(
+buttons_debouncer my_buttons_debouncer(
     .clk(clk65M),
-    .I(btnR),
-    .O(btnR_D)
-);
-debouncer btnL_debouncer(
-    .clk(clk65M),
-    .I(btnL),
-    .O(btnL_D)
-);
-debouncer btnD_debouncer(
-    .clk(clk65M),
-    .I(btnD),
-    .O(btnD_D)
-);
-debouncer btnU_debouncer(
-    .clk(clk65M),
-    .I(btnU),
-    .O(btnU_D)
+    .btnR(btnR),
+    .btnL(btnL),
+    .btnU(btnU),
+    .btnD(btnD),
+    .btnR_D(btnR_D),
+    .btnL_D(btnL_D),
+    .btnU_D(btnU_D),
+    .btnD_D(btnD_D)
 );
 
 wire [5:0] keyboard_key;
@@ -85,10 +65,13 @@ xga_timing my_timing (
 
 wire title_screen_visible, car_select_visible, control_select_visible;
 wire game_visible, arrow_visible;
+wire too_slow_visible, cheater_visible;
 wire [3:0] car_control;
 wire [1:0] car_visible;
 wire [10:0] nitro_avatar_xpos, nitro_avatar_ypos, rapid_avatar_xpos, rapid_avatar_ypos;
 wire [10:0] arrow_xpos, arrow_ypos;
+wire lap_finished, checkpoints_passed;
+wire max_lap_time_exceeded;
 
 main_fsm epic_racer_fsm (
     .pclk(clk65M),
@@ -102,9 +85,14 @@ main_fsm epic_racer_fsm (
     .title_screen_visible(title_screen_visible),
     .car_select_visible(car_select_visible),
     .control_select_visible(control_select_visible),
+    .max_lap_time_exceeded(max_lap_time_exceeded),
+    .lap_finished(lap_finished),
+    .checkpoints_passed(checkpoints_passed),
     .game_visible(game_visible),
     .car_visible(car_visible),
     .arrow_visible(arrow_visible),
+    .too_slow_visible(too_slow_visible),
+    .cheater_visible(cheater_visible),
     .controls(car_control),
     .nitro_avatar_xpos(nitro_avatar_xpos),
     .nitro_avatar_ypos(nitro_avatar_ypos),
@@ -310,13 +298,10 @@ wire [11:0] nitro_car_address, rapid_car_address;
 wire [10:0] car_xpos, car_ypos;
 wire [10:0] car_x_start, car_x_end, car_y_start, car_y_end;
 
-wire lap_finished, checkpoints_passed;
-
 car_ctl my_car_ctl(
     .pclk(clk65M),
     .rst(rst),
     .key(car_control),
-    //.key({ btnR_D, btnL_D, btnD_D, btnU_D }),
     .xpos(car_xpos),
     .ypos(car_ypos),
     .move_dir(car_rotation),
@@ -397,7 +382,6 @@ image_rom #(64, 64, 12, "./images/rapid.data") car_rapid_rom(
 );
 
 wire [15:0] current_lap_time, last_lap_time, best_lap_time;
-wire max_lap_time_exceeded;
 
 checkpoints my_checkpoints(
     .pclk(clk65M),
@@ -513,6 +497,10 @@ wire [10:0] best_lap_time_char_addr;
 wire [7:0] best_lap_time_char_pixels;
 wire [15:0] best_lap_time_char_xy;
 
+wire [10:0] vcount_rbrs, hcount_rbrs;
+wire vsync_rbrs, vblnk_rbrs, hsync_rbrs, hblnk_rbrs;
+wire [11:0] rgb_rbrs;
+
 draw_rect_char #(664, 32, 20, 1, 12'h333) draw_best_lap_time (
     .hcount_in(hcount_rlrb),
     .vcount_in(vcount_rlrb),
@@ -525,16 +513,13 @@ draw_rect_char #(664, 32, 20, 1, 12'h333) draw_best_lap_time (
     .pclk(clk65M),
     .rst(rst),
     .visible(game_visible),
-    /*.hcount_out(hcount_rlrb),
-    .vcount_out(vcount_rlrb),
-    .hsync_out(hsync_rlrb),
-    .vsync_out(vsync_rlrb),
-    .hblnk_out(hblnk_rlrb),
-    .vblnk_out(vblnk_rlrb),
-    .rgb_out(rgb_rlrb),*/
-    .rgb_out({r, g, b}),
-    .vsync_out(vs),
-    .hsync_out(hs),
+    .hcount_out(hcount_rbrs),
+    .vcount_out(vcount_rbrs),
+    .hsync_out(hsync_rbrs),
+    .vsync_out(vsync_rbrs),
+    .hblnk_out(hblnk_rbrs),
+    .vblnk_out(vblnk_rbrs),
+    .rgb_out(rgb_rbrs),
     .char_xy(best_lap_time_char_xy),
     .char_line(best_lap_time_char_addr[3:0])
 );
@@ -549,6 +534,90 @@ font_rom best_lap_time_font_rom (
     .clk(clk65M),
     .addr(best_lap_time_char_addr),
     .char_line_pixels(best_lap_time_char_pixels)
+);
+
+wire [10:0] too_slow_char_addr;
+wire [7:0] too_slow_char_pixels;
+wire [15:0] too_slow_char_xy;
+
+wire [10:0] vcount_rsrc, hcount_rsrc;
+wire vsync_rsrc, vblnk_rsrc, hsync_rsrc, hblnk_rsrc;
+wire [11:0] rgb_rsrc;
+
+draw_rect_char #(290, 220, 22, 1, 12'h333) draw_too_slow_rect_char (
+    .hcount_in(hcount_rbrs),
+    .vcount_in(vcount_rbrs),
+    .hsync_in(hsync_rbrs),
+    .hblnk_in(hblnk_rbrs),
+    .vsync_in(vsync_rbrs),
+    .vblnk_in(vblnk_rbrs),
+    .rgb_in(rgb_rbrs),
+    .char_pixels(too_slow_char_pixels),
+    .pclk(clk65M),
+    .rst(rst),
+    .visible(too_slow_visible),
+    .hcount_out(hcount_rsrc),
+    .vcount_out(vcount_rsrc),
+    .hsync_out(hsync_rsrc),
+    .vsync_out(vsync_rsrc),
+    .hblnk_out(hblnk_rsrc),
+    .vblnk_out(vblnk_rsrc),
+    .rgb_out(rgb_rsrc),
+    .char_xy(too_slow_char_xy),
+    .char_line(too_slow_char_addr[3:0])
+);
+
+too_slow_char_rom my_too_slow_char_rom(
+    .char_xy(too_slow_char_xy),
+    .char_code(too_slow_char_addr[10:4])
+);
+
+font_rom too_slow_font_rom (
+    .clk(clk65M),
+    .addr(too_slow_char_addr),
+    .char_line_pixels(too_slow_char_pixels)
+);
+
+wire [10:0] cheater_char_addr;
+wire [7:0] cheater_char_pixels;
+wire [15:0] cheater_char_xy;
+
+wire [10:0] vcount_out, hcount_out;
+wire vsync_out, vblnk_out, hsync_out, hblnk_out;
+wire [11:0] rgb_out;
+
+draw_rect_char #(250, 96, 30, 1, 12'hccc) draw_cheater_rect_char (
+    .hcount_in(hcount_rsrc),
+    .vcount_in(vcount_rsrc),
+    .hsync_in(hsync_rsrc),
+    .hblnk_in(hblnk_rsrc),
+    .vsync_in(vsync_rsrc),
+    .vblnk_in(vblnk_rsrc),
+    .rgb_in(rgb_rsrc),
+    .char_pixels(cheater_char_pixels),
+    .pclk(clk65M),
+    .rst(rst),
+    .visible(cheater_visible),
+    .hcount_out(hcount_out),
+    .vcount_out(vcount_out),
+    .hblnk_out(hblnk_out),
+    .vblnk_out(vblnk_out),
+    .rgb_out({r, g, b}),
+    .vsync_out(vs),
+    .hsync_out(hs),
+    .char_xy(cheater_char_xy),
+    .char_line(cheater_char_addr[3:0])
+);
+
+cheater_char_rom my_cheater_char_rom(
+    .char_xy(cheater_char_xy),
+    .char_code(cheater_char_addr[10:4])
+);
+
+font_rom cheater_font_rom (
+    .clk(clk65M),
+    .addr(cheater_char_addr),
+    .char_line_pixels(cheater_char_pixels)
 );
 
 endmodule
