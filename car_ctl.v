@@ -12,7 +12,7 @@ module car_ctl(
     output wire [10:0] car_y_start, 
     output wire [10:0] car_y_end
     
-    /*output reg [10:0] car_x_start_prev, 
+   /* output reg [10:0] car_x_start_prev, 
     output reg [10:0] car_x_end_prev,
     output reg [10:0] car_y_start_prev, 
     output reg [10:0] car_y_end_prev*/
@@ -28,12 +28,6 @@ localparam KEY_UP = 4'b0001;
 localparam KEY_DOWN = 4'b0010;
 localparam KEY_LEFT = 4'b0100;
 localparam KEY_RIGHT = 4'b1000;
-
-/*
-localparam KEY_UPLEFT = KEY_UP | KEY_LEFT;
-localparam KEY_UPRIGHT = KEY_UP | KEY_RIGHT;
-localparam KEY_DOWNLEFT = KEY_DOWN | KEY_LEFT;
-localparam KEY_DOWNRIGHT = KEY_DOWN | KEY_RIGHT;*/
 
 localparam DIR_DOWN = 2'b00;
 localparam DIR_RIGHT = 2'b01;
@@ -52,7 +46,7 @@ reg [2:0] state, state_nxt;
 reg [23:0] xtimer, xtimer_nxt, ytimer, ytimer_nxt;
 reg [23:0] xdelay, xdelay_nxt, ydelay, ydelay_nxt;
 reg [1:0] move_dir_nxt, move_dir_prev, move_dir_prev_nxt;
-///wire [10:0] car_x_start, car_x_end, car_y_start, car_y_end;
+//wire [10:0] car_x_start, car_x_end, car_y_start, car_y_end;
 reg [10:0] car_x_start_prev, car_x_end_prev, car_y_start_prev, car_y_end_prev;
 reg moving_down, moving_up, moving_left, moving_right;
 reg moving_down_nxt, moving_up_nxt, moving_left_nxt, moving_right_nxt;
@@ -333,37 +327,5 @@ begin
         end
     endcase
 end
- 
-/*
-   if(move_dir == DIR_DOWN) begin 
-        car_x_start = xpos + 20;
-        car_y_start = ypos + 12;
-        car_x_end = xpos + 43;
-        car_y_end = ypos + 54;
-    end
-    else if(move_dir == DIR_UP) begin
-        car_x_start = xpos + 20;
-        car_y_start = ypos + 9;
-        car_x_end = xpos + 43;
-        car_y_end = ypos + 51;
-    end
-    else if(move_dir == DIR_LEFT) begin
-        car_x_start = xpos + 9;
-        car_y_start = ypos + 20;
-        car_x_end = xpos + 51;
-        car_y_end = ypos + 43;
-    end
-    else if(move_dir == DIR_RIGHT) begin
-        car_x_start = xpos + 12;
-        car_y_start = ypos + 20;
-        car_x_end = xpos + 54;
-        car_y_end = ypos + 43;
-    end
-    else begin
-        car_x_start = xpos + 20;
-        car_y_start = ypos + 12;
-        car_x_end = xpos + 43;
-        car_y_end = ypos + 54;
-    end*/
 
 endmodule

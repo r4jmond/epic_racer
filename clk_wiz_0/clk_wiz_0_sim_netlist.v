@@ -1,7 +1,7 @@
 // Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2017.3 (win64) Build 2018833 Wed Oct  4 19:58:22 MDT 2017
-// Date        : Wed Sep 16 23:57:38 2020
+// Date        : Sun Sep 20 06:14:25 2020
 // Host        : DESKTOP-9K2AFQC running 64-bit major release  (build 9200)
 // Command     : write_verilog -force -mode funcsim
 //               C:/Users/Rejmi/Documents/Vivado/uec2_projekt/src/clk_wiz_0/clk_wiz_0_sim_netlist.v
@@ -15,35 +15,26 @@
 (* NotValidForBitStream *)
 module clk_wiz_0
    (clk_65M,
-    clk_100M,
     clk);
   output clk_65M;
-  output clk_100M;
   input clk;
 
   (* IBUF_LOW_PWR *) wire clk;
-  wire clk_100M;
   wire clk_65M;
 
   clk_wiz_0_clk_wiz_0_clk_wiz inst
        (.clk(clk),
-        .clk_100M(clk_100M),
         .clk_65M(clk_65M));
 endmodule
 
 (* ORIG_REF_NAME = "clk_wiz_0_clk_wiz" *) 
 module clk_wiz_0_clk_wiz_0_clk_wiz
    (clk_65M,
-    clk_100M,
     clk);
   output clk_65M;
-  output clk_100M;
   input clk;
 
   wire clk;
-  wire clk_100M;
-  wire clk_100M_clk_wiz_0;
-  wire clk_100M_clk_wiz_0_en_clk;
   wire clk_65M;
   wire clk_65M_clk_wiz_0;
   wire clk_65M_clk_wiz_0_en_clk;
@@ -52,11 +43,11 @@ module clk_wiz_0_clk_wiz_0_clk_wiz
   wire clkfbout_clk_wiz_0;
   wire locked_int;
   (* RTL_KEEP = "true" *) (* async_reg = "true" *) wire [7:0]seq_reg1;
-  (* RTL_KEEP = "true" *) (* async_reg = "true" *) wire [7:0]seq_reg2;
   wire NLW_mmcm_adv_inst_CLKFBOUTB_UNCONNECTED;
   wire NLW_mmcm_adv_inst_CLKFBSTOPPED_UNCONNECTED;
   wire NLW_mmcm_adv_inst_CLKINSTOPPED_UNCONNECTED;
   wire NLW_mmcm_adv_inst_CLKOUT0B_UNCONNECTED;
+  wire NLW_mmcm_adv_inst_CLKOUT1_UNCONNECTED;
   wire NLW_mmcm_adv_inst_CLKOUT1B_UNCONNECTED;
   wire NLW_mmcm_adv_inst_CLKOUT2_UNCONNECTED;
   wire NLW_mmcm_adv_inst_CLKOUT2B_UNCONNECTED;
@@ -104,39 +95,18 @@ module clk_wiz_0_clk_wiz_0_clk_wiz
        (.I(clk_65M_clk_wiz_0),
         .O(clk_65M_clk_wiz_0_en_clk));
   (* BOX_TYPE = "PRIMITIVE" *) 
-  (* XILINX_LEGACY_PRIM = "BUFGCE" *) 
-  (* XILINX_TRANSFORM_PINMAP = "CE:CE0 I:I0" *) 
-  BUFGCTRL #(
-    .INIT_OUT(0),
-    .PRESELECT_I0("TRUE"),
-    .PRESELECT_I1("FALSE")) 
-    clkout2_buf
-       (.CE0(seq_reg2[7]),
-        .CE1(1'b0),
-        .I0(clk_100M_clk_wiz_0),
-        .I1(1'b1),
-        .IGNORE0(1'b0),
-        .IGNORE1(1'b1),
-        .O(clk_100M),
-        .S0(1'b1),
-        .S1(1'b0));
-  (* BOX_TYPE = "PRIMITIVE" *) 
-  BUFH clkout2_buf_en
-       (.I(clk_100M_clk_wiz_0),
-        .O(clk_100M_clk_wiz_0_en_clk));
-  (* BOX_TYPE = "PRIMITIVE" *) 
   MMCME2_ADV #(
     .BANDWIDTH("OPTIMIZED"),
-    .CLKFBOUT_MULT_F(60.125000),
+    .CLKFBOUT_MULT_F(50.375000),
     .CLKFBOUT_PHASE(0.000000),
     .CLKFBOUT_USE_FINE_PS("FALSE"),
     .CLKIN1_PERIOD(10.000000),
     .CLKIN2_PERIOD(0.000000),
-    .CLKOUT0_DIVIDE_F(9.250000),
+    .CLKOUT0_DIVIDE_F(15.500000),
     .CLKOUT0_DUTY_CYCLE(0.500000),
     .CLKOUT0_PHASE(0.000000),
     .CLKOUT0_USE_FINE_PS("FALSE"),
-    .CLKOUT1_DIVIDE(6),
+    .CLKOUT1_DIVIDE(1),
     .CLKOUT1_DUTY_CYCLE(0.500000),
     .CLKOUT1_PHASE(0.000000),
     .CLKOUT1_USE_FINE_PS("FALSE"),
@@ -162,7 +132,7 @@ module clk_wiz_0_clk_wiz_0_clk_wiz
     .CLKOUT6_PHASE(0.000000),
     .CLKOUT6_USE_FINE_PS("FALSE"),
     .COMPENSATION("ZHOLD"),
-    .DIVCLK_DIVIDE(10),
+    .DIVCLK_DIVIDE(5),
     .IS_CLKINSEL_INVERTED(1'b0),
     .IS_PSEN_INVERTED(1'b0),
     .IS_PSINCDEC_INVERTED(1'b0),
@@ -185,7 +155,7 @@ module clk_wiz_0_clk_wiz_0_clk_wiz
         .CLKINSTOPPED(NLW_mmcm_adv_inst_CLKINSTOPPED_UNCONNECTED),
         .CLKOUT0(clk_65M_clk_wiz_0),
         .CLKOUT0B(NLW_mmcm_adv_inst_CLKOUT0B_UNCONNECTED),
-        .CLKOUT1(clk_100M_clk_wiz_0),
+        .CLKOUT1(NLW_mmcm_adv_inst_CLKOUT1_UNCONNECTED),
         .CLKOUT1B(NLW_mmcm_adv_inst_CLKOUT1B_UNCONNECTED),
         .CLKOUT2(NLW_mmcm_adv_inst_CLKOUT2_UNCONNECTED),
         .CLKOUT2B(NLW_mmcm_adv_inst_CLKOUT2B_UNCONNECTED),
@@ -279,78 +249,6 @@ module clk_wiz_0_clk_wiz_0_clk_wiz
         .CE(1'b1),
         .D(seq_reg1[6]),
         .Q(seq_reg1[7]),
-        .R(1'b0));
-  (* ASYNC_REG *) 
-  FDRE #(
-    .INIT(1'b0)) 
-    \seq_reg2_reg[0] 
-       (.C(clk_100M_clk_wiz_0_en_clk),
-        .CE(1'b1),
-        .D(locked_int),
-        .Q(seq_reg2[0]),
-        .R(1'b0));
-  (* ASYNC_REG *) 
-  FDRE #(
-    .INIT(1'b0)) 
-    \seq_reg2_reg[1] 
-       (.C(clk_100M_clk_wiz_0_en_clk),
-        .CE(1'b1),
-        .D(seq_reg2[0]),
-        .Q(seq_reg2[1]),
-        .R(1'b0));
-  (* ASYNC_REG *) 
-  FDRE #(
-    .INIT(1'b0)) 
-    \seq_reg2_reg[2] 
-       (.C(clk_100M_clk_wiz_0_en_clk),
-        .CE(1'b1),
-        .D(seq_reg2[1]),
-        .Q(seq_reg2[2]),
-        .R(1'b0));
-  (* ASYNC_REG *) 
-  FDRE #(
-    .INIT(1'b0)) 
-    \seq_reg2_reg[3] 
-       (.C(clk_100M_clk_wiz_0_en_clk),
-        .CE(1'b1),
-        .D(seq_reg2[2]),
-        .Q(seq_reg2[3]),
-        .R(1'b0));
-  (* ASYNC_REG *) 
-  FDRE #(
-    .INIT(1'b0)) 
-    \seq_reg2_reg[4] 
-       (.C(clk_100M_clk_wiz_0_en_clk),
-        .CE(1'b1),
-        .D(seq_reg2[3]),
-        .Q(seq_reg2[4]),
-        .R(1'b0));
-  (* ASYNC_REG *) 
-  FDRE #(
-    .INIT(1'b0)) 
-    \seq_reg2_reg[5] 
-       (.C(clk_100M_clk_wiz_0_en_clk),
-        .CE(1'b1),
-        .D(seq_reg2[4]),
-        .Q(seq_reg2[5]),
-        .R(1'b0));
-  (* ASYNC_REG *) 
-  FDRE #(
-    .INIT(1'b0)) 
-    \seq_reg2_reg[6] 
-       (.C(clk_100M_clk_wiz_0_en_clk),
-        .CE(1'b1),
-        .D(seq_reg2[5]),
-        .Q(seq_reg2[6]),
-        .R(1'b0));
-  (* ASYNC_REG *) 
-  FDRE #(
-    .INIT(1'b0)) 
-    \seq_reg2_reg[7] 
-       (.C(clk_100M_clk_wiz_0_en_clk),
-        .CE(1'b1),
-        .D(seq_reg2[6]),
-        .Q(seq_reg2[7]),
         .R(1'b0));
 endmodule
 `ifndef GLBL

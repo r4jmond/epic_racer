@@ -9,19 +9,18 @@ module epic_racer (
     input wire btnL,
     input wire btnD,
     input wire btnU,
-    inout wire ps2_clk,
-    inout wire ps2_data,
+    input wire ps2_clk,
+    input wire ps2_data,
     output wire [3:0] r,
     output wire [3:0] g,
     output wire [3:0] b,
     output wire pclk_mirror
 );
 
-wire clk100M, clk65M, gnd;
+wire clk65M;
 
 clk_wiz_0 my_clk(
     .clk(clk),
-//    .clk_100M(clk100M),
     .clk_65M(clk65M)
 );
 
@@ -57,10 +56,21 @@ debouncer btnU_debouncer(
     .I(btnU),
     .O(btnU_D)
 );
+
+wire [5:0] keyboard_key;
+wire [7:0] keyboard_signal;
+
+keyboard my_keyboard(
+    .clk(clk65M),
+    .ps2_clk(ps2_clk),
+    .ps2_data(ps2_data),
+    .rst(rst),
+    .key(keyboard_key),
+    .keyboard_signal(keyboard_signal)
+);
  
 wire [10:0] vcount, hcount;
 wire vsync, vblnk, hsync, hblnk;
-wire frame_ended;
 
 xga_timing my_timing (
     .vcount(vcount),
@@ -73,25 +83,43 @@ xga_timing my_timing (
     .rst(rst)
 );
 
-wire splash_visible, car_select_visible, control_select_visible;
-wire track_visible, player_visible;
-wire lap_timer_start;
+wire title_screen_visible, car_select_visible, control_select_visible;
+wire game_visible, arrow_visible;
+wire [3:0] car_control;
+wire [1:0] car_visible;
+wire [10:0] nitro_avatar_xpos, nitro_avatar_ypos, rapid_avatar_xpos, rapid_avatar_ypos;
+wire [10:0] arrow_xpos, arrow_ypos;
 
 main_fsm epic_racer_fsm (
     .pclk(clk65M),
     .rst(rst),
-    .splash_visible(splash_visible),
+    .btnR(btnR_D),
+    .btnU(btnU_D),
+    .btnD(btnD_D),
+    .btnL(btnL_D),
+    .key(keyboard_key),
+    .keycode(keyboard_signal),
+    .title_screen_visible(title_screen_visible),
     .car_select_visible(car_select_visible),
     .control_select_visible(control_select_visible),
-    .track_visible(track_visible),
-    .player_visible(player_visible)
+    .game_visible(game_visible),
+    .car_visible(car_visible),
+    .arrow_visible(arrow_visible),
+    .controls(car_control),
+    .nitro_avatar_xpos(nitro_avatar_xpos),
+    .nitro_avatar_ypos(nitro_avatar_ypos),
+    .rapid_avatar_xpos(rapid_avatar_xpos),
+    .rapid_avatar_ypos(rapid_avatar_ypos),
+    .arrow_xpos(arrow_xpos),
+    .arrow_ypos(arrow_ypos)
 );
 
-wire [10:0] vcount_mt, hcount_mt;
-wire vsync_mt, vblnk_mt, hsync_mt, hblnk_mt;
-wire [11:0] rgb_mt;
 wire [11:0] menu_data;
 wire [15:0] menu_adress;
+
+wire [10:0] vcount_mna, hcount_mna;
+wire vsync_mna, vblnk_mna, hsync_mna, hblnk_mna;
+wire [11:0] rgb_mna;
 
 draw_menu #(16, 16, 16) draw_menu(
     .vcount_in(vcount),
@@ -103,18 +131,18 @@ draw_menu #(16, 16, 16) draw_menu(
     .rgb_in(0),
     .pclk(clk65M),
     .rst(rst),
-    .splash_visible(splash_visible),
+    .title_screen_visible(title_screen_visible),
     .car_select_visible(car_select_visible),
     .control_select_visible(control_select_visible),
     .rgb_pixel(menu_data),
     .pixel_addr(menu_adress),
-    .rgb_out(rgb_mt),
-    .hcount_out(hcount_mt),
-    .vcount_out(vcount_mt),
-    .vblnk_out(vblnk_mt),
-    .hblnk_out(hblnk_mt),
-    .vsync_out(vsync_mt),
-    .hsync_out(hsync_mt)
+    .rgb_out(rgb_mna),
+    .hcount_out(hcount_mna),
+    .vcount_out(vcount_mna),
+    .vblnk_out(vblnk_mna),
+    .hblnk_out(hblnk_mna),
+    .vsync_out(vsync_mna),
+    .hsync_out(hsync_mna)
 );
 
 image_rom #(192, 160, 16, "./images/menu_tiles.data") menu_tiles(
@@ -123,32 +151,146 @@ image_rom #(192, 160, 16, "./images/menu_tiles.data") menu_tiles(
     .rgb_out(menu_data)
 );
 
-wire [10:0] vcount_tc, hcount_tc;
-wire vsync_tc, vblnk_tc, hsync_tc, hblnk_tc;
-wire [11:0] rgb_tc;
+wire [11:0] avatar_nitro_data;
+wire [11:0] avatar_nitro_address;
+
+wire [10:0] vcount_anar, hcount_anar;           
+wire vsync_anar, vblnk_anar, hsync_anar, hblnk_anar;
+wire [11:0] rgb_anar;
+
+draw_img #(64, 43, 12) draw_avatar_nitro(
+    .vcount_in(vcount_mna),
+    .hcount_in(hcount_mna),
+    .vsync_in(vsync_mna),
+    .hsync_in(hsync_mna),
+    .vblnk_in(vblnk_mna),
+    .hblnk_in(hblnk_mna),
+    .pclk(clk65M),
+    .rst(rst),
+    .xpos(nitro_avatar_xpos),
+    .ypos(nitro_avatar_ypos),
+    .visible(car_select_visible),
+    .rotation(0),
+    .rgb_in(rgb_mna),
+    .rgb_pixel(avatar_nitro_data),
+    .pixel_addr(avatar_nitro_address),
+    .rgb_out(rgb_anar),
+    .vcount_out(vcount_anar),
+    .hcount_out(hcount_anar),
+    .vsync_out(vsync_anar),
+    .hsync_out(hsync_anar),
+    .vblnk_out(vblnk_anar),
+    .hblnk_out(hblnk_anar)
+);
+
+image_rom #(64, 43, 12, "./images/nitro_avatar.data") avatar_nitro_rom(
+    .clk(clk65M),
+    .address(avatar_nitro_address),
+    .rgb_out(avatar_nitro_data)
+);
+
+wire [11:0] avatar_rapid_data;
+wire [11:0] avatar_rapid_address;
+
+wire [10:0] vcount_ara, hcount_ara;           
+wire vsync_ara, vblnk_ara, hsync_ara, hblnk_ara;
+wire [11:0] rgb_ara;
+
+draw_img #(64, 43, 12) draw_avatar_rapid(
+    .vcount_in(vcount_anar),
+    .hcount_in(hcount_anar),
+    .vsync_in(vsync_anar),
+    .hsync_in(hsync_anar),
+    .vblnk_in(vblnk_anar),
+    .hblnk_in(hblnk_anar),
+    .pclk(clk65M),
+    .rst(rst),
+    .xpos(rapid_avatar_xpos),
+    .ypos(rapid_avatar_ypos),
+    .visible(car_select_visible),
+    .rotation(0),
+    .rgb_in(rgb_anar),
+    .rgb_pixel(avatar_rapid_data),
+    .pixel_addr(avatar_rapid_address),
+    .rgb_out(rgb_ara),
+    .vcount_out(vcount_ara),
+    .hcount_out(hcount_ara),
+    .vsync_out(vsync_ara),
+    .hsync_out(hsync_ara),
+    .vblnk_out(vblnk_ara),
+    .hblnk_out(hblnk_ara)
+);
+
+image_rom #(64, 43, 12, "./images/rapid_avatar.data") avatar_rapid_rom(
+    .clk(clk65M),
+    .address(avatar_rapid_address),
+    .rgb_out(avatar_rapid_data)
+);
+
+wire [11:0] arrow_data;
+wire [11:0] arrow_address;
+
+wire [10:0] vcount_at, hcount_at;
+wire vsync_at, vblnk_at, hsync_at, hblnk_at;
+wire [11:0] rgb_at;
+
+draw_img #(45, 62, 12) draw_arrow(
+    .vcount_in(vcount_ara),
+    .hcount_in(hcount_ara),
+    .vsync_in(vsync_ara),
+    .hsync_in(hsync_ara),
+    .vblnk_in(vblnk_ara),
+    .hblnk_in(hblnk_ara),
+    .pclk(clk65M),
+    .rst(rst),
+    .xpos(arrow_xpos),
+    .ypos(arrow_ypos),
+    .visible(arrow_visible),
+    .rotation(0),
+    .rgb_in(rgb_ara),
+    .rgb_pixel(arrow_data),
+    .pixel_addr(arrow_address),
+    .rgb_out(rgb_at),
+    .vcount_out(vcount_at),
+    .hcount_out(hcount_at),
+    .vsync_out(vsync_at),
+    .hsync_out(hsync_at),
+    .vblnk_out(vblnk_at),
+    .hblnk_out(hblnk_at)
+);
+
+image_rom #(45, 62, 12, "./images/arrow.data") arrow_rom(
+    .clk(clk65M),
+    .address(arrow_address),
+    .rgb_out(arrow_data)
+);
+
+wire [10:0] vcount_tcn, hcount_tcn;
+wire vsync_tcn, vblnk_tcn, hsync_tcn, hblnk_tcn;
+wire [11:0] rgb_tcn;
 wire [11:0] track_data;
 wire [15:0] track_adress;
 
 draw_track #(16, 16, 16) draw_track(
-    .vcount_in(vcount_mt),
-    .hcount_in(hcount_mt),
-    .vsync_in(vsync_mt),
-    .hsync_in(hsync_mt),
-    .vblnk_in(vblnk_mt),
-    .hblnk_in(hblnk_mt),
+    .vcount_in(vcount_at),
+    .hcount_in(hcount_at),
+    .vsync_in(vsync_at),
+    .hsync_in(hsync_at),
+    .vblnk_in(vblnk_at),
+    .hblnk_in(hblnk_at),
     .pclk(clk65M),
     .rst(rst),
-    .visible(track_visible),
-    .rgb_in(rgb_mt),
+    .visible(game_visible),
+    .rgb_in(rgb_at),
     .rgb_pixel(track_data),
     .pixel_addr(track_adress),
-    .rgb_out(rgb_tc),
-    .hcount_out(hcount_tc),
-    .vcount_out(vcount_tc),
-    .vblnk_out(vblnk_tc),
-    .hblnk_out(hblnk_tc),
-    .vsync_out(vsync_tc),
-    .hsync_out(hsync_tc)
+    .rgb_out(rgb_tcn),
+    .hcount_out(hcount_tcn),
+    .vcount_out(vcount_tcn),
+    .vblnk_out(vblnk_tcn),
+    .hblnk_out(hblnk_tcn),
+    .vsync_out(vsync_tcn),
+    .hsync_out(hsync_tcn)
 );
 
 image_rom #(256, 240, 16, "./images/track.data") track_tiles(
@@ -158,11 +300,13 @@ image_rom #(256, 240, 16, "./images/track.data") track_tiles(
 );
 
 wire [1:0] car_rotation;
-wire [10:0] vcount_crc, hcount_crc;           
-wire vsync_crc, vblnk_crc, hsync_crc, hblnk_crc;
-wire [11:0] rgb_crc;
-wire [11:0] car_data;
-wire [11:0] car_adress;
+
+wire [10:0] vcount_cfcr, hcount_cfcr;           
+wire vsync_cfcr, vblnk_cfcr, hsync_cfcr, hblnk_cfcr;
+wire [11:0] rgb_cfcr;
+
+wire [11:0] nitro_car_data, rapid_car_data;
+wire [11:0] nitro_car_address, rapid_car_address;
 wire [10:0] car_xpos, car_ypos;
 wire [10:0] car_x_start, car_x_end, car_y_start, car_y_end;
 
@@ -171,7 +315,8 @@ wire lap_finished, checkpoints_passed;
 car_ctl my_car_ctl(
     .pclk(clk65M),
     .rst(rst),
-    .key({ btnR_D, btnL_D, btnD_D, btnU_D }),
+    .key(car_control),
+    //.key({ btnR_D, btnL_D, btnD_D, btnU_D }),
     .xpos(car_xpos),
     .ypos(car_ypos),
     .move_dir(car_rotation),
@@ -181,37 +326,75 @@ car_ctl my_car_ctl(
     .car_y_end(car_y_end)
 );
 
+wire [10:0] vcount_cncr, hcount_cncr;           
+wire vsync_cncr, vblnk_cncr, hsync_cncr, hblnk_cncr;
+wire [11:0] rgb_cncr;
+
 draw_img #(64, 64, 12) draw_car_nitro(
-    .vcount_in(vcount_tc),
-    .hcount_in(hcount_tc),
-    .vsync_in(vsync_tc),
-    .hsync_in(hsync_tc),
-    .vblnk_in(vblnk_tc),
-    .hblnk_in(hblnk_tc),
+    .vcount_in(vcount_tcn),
+    .hcount_in(hcount_tcn),
+    .vsync_in(vsync_tcn),
+    .hsync_in(hsync_tcn),
+    .vblnk_in(vblnk_tcn),
+    .hblnk_in(hblnk_tcn),
     .pclk(clk65M),
     .rst(rst),
     .xpos(car_xpos),
     .ypos(car_ypos),
-    .visible(player_visible),
-    .rgb_in(rgb_tc),
-    .rgb_pixel(car_data),
-    .pixel_addr(car_adress),
-    .rgb_out(rgb_crc),
-    .vcount_out(vcount_crc),
-    .hcount_out(hcount_crc),
-    .vsync_out(vsync_crc),
-    .hsync_out(hsync_crc),
-    .vblnk_out(vblnk_crc),
-    .hblnk_out(hblnk_crc),
-    .rotation(car_rotation)
+    .visible(car_visible[0] && game_visible),
+    .rotation(car_rotation),
+    .rgb_in(rgb_tcn),
+    .rgb_pixel(nitro_car_data),
+    .pixel_addr(nitro_car_address),
+    .rgb_out(rgb_cncr),
+    .vcount_out(vcount_cncr),
+    .hcount_out(hcount_cncr),
+    .vsync_out(vsync_cncr),
+    .hsync_out(hsync_cncr),
+    .vblnk_out(vblnk_cncr),
+    .hblnk_out(hblnk_cncr)
 );
 
-image_rom #(64, 64, 12, "./images/car_nitro.data") car_nitro_rom(
+image_rom #(64, 64, 12, "./images/nitro.data") car_nitro_rom(
     .clk(clk65M),
-    .address(car_adress),
-    .rgb_out(car_data)
+    .address(nitro_car_address),
+    .rgb_out(nitro_car_data)
 );
 
+wire [10:0] vcount_crrc, hcount_crrc;           
+wire vsync_crrc, vblnk_crrc, hsync_crrc, hblnk_crrc;
+wire [11:0] rgb_crrc;
+
+draw_img #(64, 64, 12) draw_car_rapid(
+    .vcount_in(vcount_cncr),
+    .hcount_in(hcount_cncr),
+    .vsync_in(vsync_cncr),
+    .hsync_in(hsync_cncr),
+    .vblnk_in(vblnk_cncr),
+    .hblnk_in(hblnk_cncr),
+    .pclk(clk65M),
+    .rst(rst),
+    .xpos(car_xpos),
+    .ypos(car_ypos),
+    .visible(car_visible[1] && game_visible),
+    .rotation(car_rotation),
+    .rgb_in(rgb_cncr),
+    .rgb_pixel(rapid_car_data),
+    .pixel_addr(rapid_car_address),
+    .rgb_out(rgb_crrc),
+    .vcount_out(vcount_crrc),
+    .hcount_out(hcount_crrc),
+    .vsync_out(vsync_crrc),
+    .hsync_out(hsync_crrc),
+    .vblnk_out(vblnk_crrc),
+    .hblnk_out(hblnk_crrc)
+);
+
+image_rom #(64, 64, 12, "./images/rapid.data") car_rapid_rom(
+    .clk(clk65M),
+    .address(rapid_car_address),
+    .rgb_out(rapid_car_data)
+);
 
 wire [15:0] current_lap_time, last_lap_time, best_lap_time;
 wire max_lap_time_exceeded;
@@ -230,7 +413,7 @@ checkpoints my_checkpoints(
 lap_timer my_lap_timer(
     .pclk(clk65M),
     .rst(rst),
-    .start(track_visible),
+    .start(game_visible),
     .stop(0),
     .lap_finished(lap_finished),
     .checkpoints_passed(checkpoints_passed),
@@ -249,27 +432,24 @@ wire vsync_rcrl, vblnk_rcrl, hsync_rcrl, hblnk_rcrl;
 wire [11:0] rgb_rcrl;
 
 draw_rect_char #(144, 32, 23, 1, 12'h333) draw_current_lap_time (
-    .hcount_in(hcount_crc),
-    .hsync_in(hsync_crc),
-    .hblnk_in(hblnk_crc),
-    .vcount_in(vcount_crc),
-    .vsync_in(vsync_crc),
-    .vblnk_in(vblnk_crc),
-    .rgb_in(rgb_crc),
+    .hcount_in(hcount_crrc),
+    .hsync_in(hsync_crrc),
+    .hblnk_in(hblnk_crrc),
+    .vcount_in(vcount_crrc),
+    .vsync_in(vsync_crrc),
+    .vblnk_in(vblnk_crrc),
+    .rgb_in(rgb_crrc),
     .char_pixels(current_lap_time_char_pixels),
     .pclk(clk65M),
     .rst(rst),
-    .visible(track_visible),
-    //.hsync_out(hs),
+    .visible(game_visible),
     .hsync_out(hsync_rcrl),
     .hcount_out(hcount_rcrl),
     .hblnk_out(hblnk_rcrl),
     .vcount_out(vcount_rcrl),
     .vsync_out(vsync_rcrl),
-    //.vsync_out(vs),
     .vblnk_out(vblnk_rcrl),
     .rgb_out(rgb_rcrl),
-    //.rgb_out({r, g, b}),
     .char_xy(current_lap_time_char_xy),
     .char_line(current_lap_time_char_addr[3:0])
 );
@@ -305,7 +485,7 @@ draw_rect_char #(416, 32, 20, 1, 12'h333) draw_last_lap_time (
     .char_pixels(last_lap_time_char_pixels),
     .pclk(clk65M),
     .rst(rst),
-    .visible(track_visible),
+    .visible(game_visible),
     .hcount_out(hcount_rlrb),
     .vcount_out(vcount_rlrb),
     .hsync_out(hsync_rlrb),
@@ -344,7 +524,7 @@ draw_rect_char #(664, 32, 20, 1, 12'h333) draw_best_lap_time (
     .char_pixels(best_lap_time_char_pixels),
     .pclk(clk65M),
     .rst(rst),
-    .visible(track_visible),
+    .visible(game_visible),
     /*.hcount_out(hcount_rlrb),
     .vcount_out(vcount_rlrb),
     .hsync_out(hsync_rlrb),
@@ -370,13 +550,5 @@ font_rom best_lap_time_font_rom (
     .addr(best_lap_time_char_addr),
     .char_line_pixels(best_lap_time_char_pixels)
 );
-/*
-keyboard my_keyboard(
-    .clk(clk100M),
-    .ps2_clk(ps2_clk),
-    .ps2_data(ps2_data),
-    .rst(rst),
-    .key(keyboard_key)
-);*/
 
 endmodule

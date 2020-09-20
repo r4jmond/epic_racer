@@ -55,8 +55,7 @@
 //  Output     Output      Phase    Duty Cycle   Pk-to-Pk     Phase
 //   Clock     Freq (MHz)  (degrees)    (%)     Jitter (ps)  Error (ps)
 //----------------------------------------------------------------------------
-// _clk_65M____65.000______0.000______50.0______676.125____871.302
-// clk_100M___100.208______0.000______50.0______636.825____871.302
+// _clk_65M____65.000______0.000______50.0______254.866____297.890
 //
 //----------------------------------------------------------------------------
 // Input Clock   Freq (MHz)    Input Jitter (UI)
@@ -73,7 +72,6 @@
    (
     // Clock out ports
     .clk_65M(clk_65M),     // output clk_65M
-    .clk_100M(clk_100M),     // output clk_100M
    // Clock in ports
     .clk(clk));      // input clk
 // INST_TAG_END ------ End INSTANTIATION Template ---------
