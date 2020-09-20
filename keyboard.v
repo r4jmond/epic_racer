@@ -1,15 +1,15 @@
 `timescale 1ns / 1ps
 
 module keyboard(
-   input wire clk,	//board clock
-   input wire ps2_clk,	//keyboard clock and data signals
+   input wire clk,
+   input wire ps2_clk,
    input wire ps2_data,
    input wire rst,
    output reg [5:0] key,
    output reg [7:0] keyboard_signal
 );
 
-localparam ARROW_UP = 8'h75;	//codes for arrows
+localparam ARROW_UP = 8'h75;
 localparam ARROW_DOWN = 8'h72;
 localparam ARROW_LEFT = 8'h6B;
 localparam ARROW_RIGHT = 8'h74;

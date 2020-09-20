@@ -544,7 +544,7 @@ wire [10:0] vcount_rsrc, hcount_rsrc;
 wire vsync_rsrc, vblnk_rsrc, hsync_rsrc, hblnk_rsrc;
 wire [11:0] rgb_rsrc;
 
-draw_rect_char #(424, 376, 22, 1, 12'h333) draw_too_slow_rect_char (
+draw_rect_char #(290, 220, 22, 1, 12'h333) draw_too_slow_rect_char (
     .hcount_in(hcount_rbrs),
     .vcount_in(vcount_rbrs),
     .hsync_in(hsync_rbrs),
@@ -586,7 +586,7 @@ wire [10:0] vcount_out, hcount_out;
 wire vsync_out, vblnk_out, hsync_out, hblnk_out;
 wire [11:0] rgb_out;
 
-draw_rect_char #(424, 350, 30, 1, 12'h333) draw_cheater_rect_char (
+draw_rect_char #(250, 96, 30, 1, 12'hccc) draw_cheater_rect_char (
     .hcount_in(hcount_rsrc),
     .vcount_in(vcount_rsrc),
     .hsync_in(hsync_rsrc),

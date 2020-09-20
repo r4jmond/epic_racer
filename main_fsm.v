@@ -258,6 +258,11 @@ begin
     end
     CHECKPOINT_MISSED:
     begin
+        if(checkpoints_passed)
+        begin
+           cheater_visible_nxt = 0;
+           state_nxt = GAME;
+        end
         car_visible_nxt = car_visible;
         control_nxt = control;
         title_screen_visible_nxt = 0;
