@@ -9,11 +9,16 @@ module main_fsm(
     input wire btnL,
     input wire [5:0] key,
     input wire [7:0] keycode,
+    input wire lap_finished,
+    input wire checkpoints_passed,
+    input wire max_lap_time_exceeded,
     output reg game_visible,
     output reg title_screen_visible,
     output reg car_select_visible,
     output reg control_select_visible,
     output reg arrow_visible,
+    output reg too_slow_visible,
+    output reg cheater_visible,
     output reg [3:0] controls,
     output reg [1:0] car_visible,
     output reg [10:0] nitro_avatar_xpos,
@@ -29,6 +34,8 @@ localparam GAME = 3'b001;
 localparam CAR_SELECT = 3'b011;
 localparam CONTROL_SELECT = 3'b010;
 localparam STATE_CHANGED = 3'b110;
+localparam MAX_LAP_TIME_EXCEEDED = 3'b111;
+localparam CHECKPOINT_MISSED = 3'b101;
 
 localparam SELECTING_NITRO_CAR = 0;
 localparam SELECTING_RAPID_CAR = 1;
@@ -50,19 +57,22 @@ localparam KEY_RIGHT = 6'b001000;
 localparam KEY_ENTER = 6'b010000;
 
 localparam DELAY = 10000000;
+localparam TEXT_VISIBLE_TIME = 130000000;
 
 
 reg choosing_car, choosing_car_nxt;
 reg [1:0] control_arrow, control_arrow_nxt;
 reg [3:0] state, state_nxt;
 reg [1:0] car_visible_nxt;
-reg [1:0] control, control_nxt;
+reg [1:0] control, control_nxt, controls_nxt;
 reg car_select_visible_nxt, control_select_visible_nxt, arrow_visible_nxt, title_screen_visible_nxt, game_visible_nxt;
+reg too_slow_visible_nxt, cheater_visible_nxt;
 reg [10:0] arrow_xpos_nxt, arrow_ypos_nxt;
 reg [25:0] menu_timer, menu_timer_nxt;
 reg [10:0] nitro_avatar_xpos_nxt, nitro_avatar_ypos_nxt, rapid_avatar_xpos_nxt, rapid_avatar_ypos_nxt;
 reg [3:0] next_state, next_state_nxt;
 reg [1:0] next_control, next_control_nxt;
+reg [31:0] timer, timer_nxt;
 
 always@(*)
 begin
@@ -83,8 +93,15 @@ begin
     arrow_xpos_nxt = arrow_xpos; 
     arrow_ypos_nxt = arrow_ypos;
     menu_timer_nxt = 0;
+    timer_nxt = 0;
     next_state_nxt = next_state;
     next_control_nxt = next_control;
+    too_slow_visible_nxt = 0;
+    cheater_visible_nxt = 0;
+
+    if(control == KEYBOARD) controls_nxt = key[3:0];
+    else if(control == BASYS) controls_nxt = {btnR, btnL, btnD, btnU};
+    else controls_nxt = 0;
     
     case(state)
     TITLE_SCREEN:
@@ -200,7 +217,16 @@ begin
         control_arrow_nxt = control_arrow;
         arrow_visible_nxt = 0;
         state_nxt = GAME;
-    end                       
+        if(max_lap_time_exceeded) begin
+            state_nxt = MAX_LAP_TIME_EXCEEDED;
+            timer_nxt = 0;
+        end
+        else if(!checkpoints_passed && lap_finished)
+        begin
+            state_nxt = CHECKPOINT_MISSED;
+            timer_nxt = 0;
+        end
+    end                  
     STATE_CHANGED:
     begin
         control_nxt = NO_CONTROL;
@@ -211,6 +237,52 @@ begin
             menu_timer_nxt = 0;
             state_nxt = next_state;
             if(state_nxt == GAME) control_nxt = next_control;
+        end
+    end
+    MAX_LAP_TIME_EXCEEDED:
+    begin
+        car_visible_nxt = car_visible;
+        control_nxt = control;
+        title_screen_visible_nxt = 0;
+        game_visible_nxt = 1;
+        control_select_visible_nxt = 0;
+        car_select_visible_nxt = 0;
+        control_arrow_nxt = control_arrow;
+        arrow_visible_nxt = 0;
+        state_nxt = MAX_LAP_TIME_EXCEEDED;
+        if(timer < TEXT_VISIBLE_TIME) 
+        begin
+            timer_nxt = timer + 1;
+            too_slow_visible_nxt = 1;
+        end
+        else
+        begin
+            timer_nxt = 0;
+            too_slow_visible_nxt = 0;
+            state_nxt = GAME;
+        end
+    end
+    CHECKPOINT_MISSED:
+    begin
+        car_visible_nxt = car_visible;
+        control_nxt = control;
+        title_screen_visible_nxt = 0;
+        game_visible_nxt = 1;
+        control_select_visible_nxt = 0;
+        car_select_visible_nxt = 0;
+        control_arrow_nxt = control_arrow;
+        arrow_visible_nxt = 0;
+        state_nxt = CHECKPOINT_MISSED;
+        if(timer < TEXT_VISIBLE_TIME) 
+        begin
+            timer_nxt = timer + 1;
+            too_slow_visible_nxt = 1;
+        end
+        else
+        begin
+            timer_nxt = 0;
+            too_slow_visible_nxt = 0;
+            state_nxt = GAME;
         end
     end
     endcase
@@ -239,6 +311,10 @@ end
         rapid_avatar_ypos <= 0;
         next_state <= 0;
         next_control <= 0;
+        cheater_visible <= 0;
+        too_slow_visible <= 0;
+        timer <= 0;
+        controls <= 0;
     end
     else
     begin
@@ -261,10 +337,11 @@ end
         rapid_avatar_ypos <= rapid_avatar_ypos_nxt;
         next_state <= next_state_nxt;
         next_control <= next_control_nxt;
-        if(control == KEYBOARD) controls <= key[3:0];
-        else if(control == BASYS) controls <= {btnR, btnL, btnD, btnU};
-        else controls <= 0;
+        too_slow_visible <= too_slow_visible_nxt;
+        cheater_visible <= cheater_visible_nxt;
+        timer <= timer_nxt;
+        controls <= controls_nxt;
     end
-      
+
 endmodule
 
