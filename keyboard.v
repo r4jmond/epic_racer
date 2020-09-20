@@ -17,7 +17,6 @@ localparam ENTER = 8'h5A;
 localparam ESC = 8'h76;
 
 
-
 localparam KEY_UP = 6'b000001;
 localparam KEY_DOWN = 6'b000010;
 localparam KEY_LEFT = 6'b000100;
@@ -83,5 +82,5 @@ begin
         keyboard_signal <= keycode;
     end
 end
-
+  
 endmodule
