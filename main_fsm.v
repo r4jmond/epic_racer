@@ -64,7 +64,7 @@ reg choosing_car, choosing_car_nxt;
 reg [1:0] control_arrow, control_arrow_nxt;
 reg [3:0] state, state_nxt;
 reg [1:0] car_visible_nxt;
-reg [1:0] control, control_nxt, controls_nxt;
+reg [1:0] control, control_nxt;
 reg car_select_visible_nxt, control_select_visible_nxt, arrow_visible_nxt, title_screen_visible_nxt, game_visible_nxt;
 reg too_slow_visible_nxt, cheater_visible_nxt;
 reg [10:0] arrow_xpos_nxt, arrow_ypos_nxt;
@@ -93,15 +93,11 @@ begin
     arrow_xpos_nxt = arrow_xpos; 
     arrow_ypos_nxt = arrow_ypos;
     menu_timer_nxt = 0;
-    timer_nxt = 0;
     next_state_nxt = next_state;
     next_control_nxt = next_control;
     too_slow_visible_nxt = 0;
     cheater_visible_nxt = 0;
-
-    if(control == KEYBOARD) controls_nxt = key[3:0];
-    else if(control == BASYS) controls_nxt = {btnR, btnL, btnD, btnU};
-    else controls_nxt = 0;
+    timer_nxt = 0;
     
     case(state)
     TITLE_SCREEN:
@@ -219,12 +215,10 @@ begin
         state_nxt = GAME;
         if(max_lap_time_exceeded) begin
             state_nxt = MAX_LAP_TIME_EXCEEDED;
-            timer_nxt = 0;
         end
         else if(!checkpoints_passed && lap_finished)
         begin
             state_nxt = CHECKPOINT_MISSED;
-            timer_nxt = 0;
         end
     end                  
     STATE_CHANGED:
@@ -276,14 +270,26 @@ begin
         if(timer < TEXT_VISIBLE_TIME) 
         begin
             timer_nxt = timer + 1;
-            too_slow_visible_nxt = 1;
+            cheater_visible_nxt = 1;
         end
         else
         begin
             timer_nxt = 0;
-            too_slow_visible_nxt = 0;
+            cheater_visible_nxt = 0;
             state_nxt = GAME;
         end
+    end
+    default:
+    begin
+        car_visible_nxt = car_visible;
+        title_screen_visible_nxt = 0;
+        game_visible_nxt = 0;
+        control_select_visible_nxt = 0;
+        car_select_visible_nxt = 0;
+        control_arrow_nxt = control_arrow;
+        arrow_visible_nxt = 0;
+        state_nxt = state;
+        control_nxt = 0;
     end
     endcase
     
@@ -340,7 +346,9 @@ end
         too_slow_visible <= too_slow_visible_nxt;
         cheater_visible <= cheater_visible_nxt;
         timer <= timer_nxt;
-        controls <= controls_nxt;
+        if(control == KEYBOARD) controls <= key[3:0];
+        else if(control == BASYS) controls <= {btnR, btnL, btnD, btnU};
+        else controls <= 0;
     end
 
 endmodule

@@ -94,7 +94,10 @@ begin
             else
             begin
                 counter1k_nxt = 0;
-                if(current_lap_time < MAX_LAP_TIME) current_lap_time_nxt = current_lap_time + 1;
+                if(current_lap_time < MAX_LAP_TIME) 
+                begin
+                    current_lap_time_nxt = current_lap_time + 1;
+                end
                 else 
                 begin
                     current_lap_time_nxt = 0;

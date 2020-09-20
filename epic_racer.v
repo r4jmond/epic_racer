@@ -14,7 +14,6 @@ module epic_racer (
     output wire [3:0] r,
     output wire [3:0] g,
     output wire [3:0] b
-    //output wire pclk_mirror
 );
 
 wire clk65M;
@@ -23,16 +22,6 @@ clk_wiz_0 my_clk(
     .clk(clk),
     .clk_65M(clk65M)
 );
-/*
-  ODDR pclk_oddr (
-    .Q(pclk_mirror),
-    .C(clk65M),
-    .CE(1'b1),
-    .D1(1'b1),
-    .D2(1'b0),
-    .R(1'b0),
-    .S(1'b0)
-);*/
 
 wire btnR_D, btnL_D, btnD_D, btnU_D;
 
@@ -96,9 +85,9 @@ main_fsm epic_racer_fsm (
     .title_screen_visible(title_screen_visible),
     .car_select_visible(car_select_visible),
     .control_select_visible(control_select_visible),
+    .max_lap_time_exceeded(max_lap_time_exceeded),
     .lap_finished(lap_finished),
     .checkpoints_passed(checkpoints_passed),
-    .max_lap_time_exceeded(max_lap_time_exceeded),
     .game_visible(game_visible),
     .car_visible(car_visible),
     .arrow_visible(arrow_visible),
@@ -313,7 +302,6 @@ car_ctl my_car_ctl(
     .pclk(clk65M),
     .rst(rst),
     .key(car_control),
-    //.key({ btnR_D, btnL_D, btnD_D, btnU_D }),
     .xpos(car_xpos),
     .ypos(car_ypos),
     .move_dir(car_rotation),
@@ -495,6 +483,7 @@ draw_rect_char #(416, 32, 20, 1, 12'h333) draw_last_lap_time (
 
 last_lap_time_char_rom last_lap_time_char_rom(
     .char_xy(last_lap_time_char_xy),
+    //.last_lap_time(max_lap_time_exceeded),
     .last_lap_time(last_lap_time),
     .char_code(last_lap_time_char_addr[10:4])
 );
@@ -541,7 +530,8 @@ draw_rect_char #(664, 32, 20, 1, 12'h333) draw_best_lap_time (
 
 best_lap_time_char_rom best_lap_time_char_rom(
     .char_xy(best_lap_time_char_xy),
-    .best_lap_time(best_lap_time),
+    .best_lap_time(checkpoints_passed),
+  //  .best_lap_time(best_lap_time),
     .char_code(best_lap_time_char_addr[10:4])
 );
 
@@ -570,8 +560,7 @@ draw_rect_char #(424, 376, 22, 1, 12'h333) draw_too_slow_rect_char (
     .char_pixels(too_slow_char_pixels),
     .pclk(clk65M),
     .rst(rst),
-    .visible(1),
-    //.visible(too_slow_visible),
+    .visible(too_slow_visible),
     .hcount_out(hcount_rsrc),
     .vcount_out(vcount_rsrc),
     .hsync_out(hsync_rsrc),
@@ -613,8 +602,8 @@ draw_rect_char #(424, 350, 22, 1, 12'h333) draw_cheater_rect_char (
     .char_pixels(cheater_char_pixels),
     .pclk(clk65M),
     .rst(rst),
-    .visible(game_visible),
-    //.visible(cheater_visible),
+    //.visible(game_visible),
+    .visible(cheater_visible),
     .hcount_out(hcount_out),
     .vcount_out(vcount_out),
     .hblnk_out(hblnk_out),
